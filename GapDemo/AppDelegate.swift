@@ -7,40 +7,97 @@
 //
 
 import UIKit
+import MultipeerConnectivity
+
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate {
 
+    let SERVICE_TYPE = "dft-gapdemo"
+    let PeerID = MCPeerID(displayName: UIDevice.currentDevice().name)
+    
     var window: UIWindow?
-
-
+    var serviceBrowser: MCNearbyServiceBrowser?
+    var serviceAdvertiser: MCNearbyServiceAdvertiser?
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
+        
+        didChangeDefaults()
+        
         return true
     }
-
-    func applicationWillResignActive(application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+    
+    func didChangeDefaults() {
+        switch UIApplication.sharedApplication().operationMode {
+        case .Listener:
+            serviceBrowser = MCNearbyServiceBrowser(peer: PeerID, serviceType: SERVICE_TYPE);
+            serviceBrowser?.delegate = self
+            serviceBrowser?.startBrowsingForPeers()
+            
+            //If settings changed, ensure other mode is stopped
+            serviceAdvertiser?.stopAdvertisingPeer()
+            NSLog("👂")
+        case .Broadcaster:
+            serviceAdvertiser = MCNearbyServiceAdvertiser(peer: PeerID, discoveryInfo: nil, serviceType: SERVICE_TYPE)
+            serviceAdvertiser?.delegate = self
+            serviceAdvertiser?.startAdvertisingPeer()
+            
+            //If settings changed, ensure other mode is stopped
+            serviceBrowser?.stopBrowsingForPeers()
+            NSLog("🎵")
+        }
     }
 
-    func applicationDidEnterBackground(application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
+        NSLog("👉 \(peerID.displayName)")
+        browser.invitePeer(peerID, toSession: registerSession(peerID), withContext: nil, timeout: 0)
     }
-
-    func applicationWillEnterForeground(application: UIApplication) {
-        // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    
+    func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
+        NSLog("Error browsing for peers: \(error)")
     }
-
-    func applicationDidBecomeActive(application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    func browser(browser: MCNearbyServiceBrowser!, lostPeer peerID: MCPeerID!) {
+        NSLog("❓ \(peerID.displayName)")
     }
-
-    func applicationWillTerminate(application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    
+    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didNotStartAdvertisingPeer error: NSError!) {
+        NSLog("Error advertising for peers: \(error)")
     }
-
-
+    
+    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
+        NSLog("👍 \(peerID.displayName)")
+        
+        invitationHandler(true, registerSession(peerID))
+    }
+    
+    func registerSession (peerId: MCPeerID) -> MCSession {
+        let vc = window?.rootViewController as ViewController
+        if vc.session == nil {
+            vc.session = MCSession(peer: PeerID)
+        }
+       return vc.session!
+    }
 }
 
+enum OperationMode {
+    case Broadcaster
+    case Listener
+}
+
+extension UIApplication {
+    var operationMode: OperationMode {
+        get {
+            let positionSettings = NSUserDefaults.standardUserDefaults().stringForKey("position")
+            
+            switch positionSettings {
+            case let stringVal where stringVal == "middle":
+                return .Listener
+            default:
+                return .Broadcaster
+            }
+        }
+    }
+}
