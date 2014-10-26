@@ -11,6 +11,19 @@ import MultipeerConnectivity
 
 class ViewController: UIViewController, SessionManagerDelegate {
     
+    var sessionManager: DiscoveryManager!
+    
+    @IBAction func restartAdvertising(sender: AnyObject) {
+        switch UIApplication.sharedApplication().role {
+        case .Middle:
+            sessionManager.mode = .Listener
+        default:
+            sessionManager.mode = .Broadcaster
+        }
+    }
+    @IBAction func flushSession(sender: AnyObject) {
+        sessionManager.sessionManager.reset()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -27,6 +40,7 @@ class ViewController: UIViewController, SessionManagerDelegate {
     }
     
     func wallDidCloseToSide() {
+        //sessionManager.browseAgain()
         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
             
             self.view.backgroundColor = UIColor.redColor()

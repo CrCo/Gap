@@ -9,7 +9,6 @@
 import UIKit
 import MultipeerConnectivity
 
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -25,6 +24,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         discoveryManager = DiscoveryManager(sessionManager: session)
         
         let vc = window?.rootViewController as ViewController
+        
+        vc.sessionManager = discoveryManager
         session.delegate = vc
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
@@ -43,7 +44,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 }
-
 
 enum MeshDisplayRole : String {
     case Left = "left"

@@ -24,6 +24,13 @@ class SessionManager : NSObject, MCSessionDelegate {
         session.delegate = self
     }
     
+    func reset() {
+        NSLog("❌ Reseting the session")
+        session.disconnect()
+        session = MCSession(peer: peerID)
+        session.delegate = self
+    }
+    
     func session(session: MCSession!, peer peerID: MCPeerID!, didChangeState state: MCSessionState) {
         switch (state) {
         case .Connected:

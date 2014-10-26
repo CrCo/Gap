@@ -14,10 +14,14 @@ enum OperationMode {
 }
 
 class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate  {
-        
+    
+    let positionKey = "position"
+    
     var browser: MCNearbyServiceBrowser!
     var advertiser: MCNearbyServiceAdvertiser!
     var sessionManager: SessionManager
+    let serviceType = "dft-gapdemo"
+
 
     init(sessionManager: SessionManager) {
         self.sessionManager = sessionManager
@@ -25,10 +29,9 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
     
     var mode: OperationMode = .Listener {
         didSet {
-            let serviceType = "dft-gapdemo"
 
             browser = MCNearbyServiceBrowser(peer: sessionManager.peerID, serviceType: serviceType);
-            advertiser = MCNearbyServiceAdvertiser(peer: sessionManager.peerID, discoveryInfo: ["position": UIApplication.sharedApplication().role.rawValue], serviceType: serviceType)
+            advertiser = MCNearbyServiceAdvertiser(peer: sessionManager.peerID, discoveryInfo: [positionKey: UIApplication.sharedApplication().role.rawValue], serviceType: serviceType)
             
             browser.delegate = self
             advertiser.delegate = self
@@ -45,13 +48,24 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
             }
         }
     }
+    
+    func browseAgain() {
+        if mode == .Listener {
+            browser.stopBrowsingForPeers()
+            browser = MCNearbyServiceBrowser(peer: sessionManager.peerID, serviceType: serviceType);
+            browser.delegate = self
+            browser.startBrowsingForPeers()
+            NSLog("👂")
+        }
+    }
 
     func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
-        let position = info["position"] as String
-
-            NSLog("👉 \(peerID.displayName) @ \(position)")
-            browser.invitePeer(peerID, toSession: sessionManager.session, withContext: nil, timeout: 0)
-   }
+        
+        let position = info[positionKey] as String
+        
+        NSLog("👉 (no connections with peer) \(peerID.displayName) @ \(position)")
+        browser.invitePeer(peerID, toSession: sessionManager.session, withContext: nil, timeout: 0)
+    }
 
     func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
         NSLog("Error browsing for peers: \(error)")
@@ -66,7 +80,19 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
     }
     
     func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
-        NSLog("👍 \(peerID.displayName)")
-        invitationHandler(true, sessionManager.session)
+        
+        if let peers = sessionManager.session.connectedPeers as? [MCPeerID] {
+            if let result = find(peers, peerID) {
+                sessionManager.reset()
+                NSLog("👍 (after flushing the session) \(peerID.displayName)")
+                invitationHandler(true, sessionManager.session)
+            } else {
+                NSLog("👍 (no matching connections) \(peerID.displayName)")
+                invitationHandler(true, sessionManager.session)
+            }
+        } else {
+            NSLog("👍 (no connections) \(peerID.displayName)")
+            invitationHandler(true, sessionManager.session)
+        }
     }
 }

@@ -10,7 +10,6 @@
 		371058BB19FD5177004BC50A /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BA19FD5176004BC50A /* SessionManager.swift */; };
 		371058BD19FD5434004BC50A /* DiscoveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BC19FD5434004BC50A /* DiscoveryManager.swift */; };
 		371F630319FC151C00B56D02 /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 371F630219FC151C00B56D02 /* SpriteKit.framework */; };
-		3731E94119F974BE00D7B561 /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3731E94019F974BE00D7B561 /* StatusView.swift */; };
 		3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3779B88A19F9421800DC3CE5 /* AppDelegate.swift */; };
 		3779B88D19F9421800DC3CE5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3779B88C19F9421800DC3CE5 /* ViewController.swift */; };
 		3779B89019F9421900DC3CE5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3779B88E19F9421800DC3CE5 /* Main.storyboard */; };
@@ -35,7 +34,6 @@
 		371058BA19FD5176004BC50A /* SessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 		371058BC19FD5434004BC50A /* DiscoveryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryManager.swift; sourceTree = "<group>"; };
 		371F630219FC151C00B56D02 /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
-		3731E94019F974BE00D7B561 /* StatusView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>"; };
 		3779B88519F9421800DC3CE5 /* GapDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GapDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3779B88919F9421800DC3CE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3779B88A19F9421800DC3CE5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -101,7 +99,6 @@
 				3779B89119F9421900DC3CE5 /* Images.xcassets */,
 				3779B89319F9421900DC3CE5 /* LaunchScreen.xib */,
 				3779B88819F9421800DC3CE5 /* Supporting Files */,
-				3731E94019F974BE00D7B561 /* StatusView.swift */,
 			);
 			path = GapDemo;
 			sourceTree = "<group>";
@@ -238,7 +235,6 @@
 				3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */,
 				371058BB19FD5177004BC50A /* SessionManager.swift in Sources */,
 				371058BD19FD5434004BC50A /* DiscoveryManager.swift in Sources */,
-				3731E94119F974BE00D7B561 /* StatusView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,6 +314,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -354,6 +351,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -363,12 +361,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = GapDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -376,6 +376,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = GapDemo/Info.plist;
