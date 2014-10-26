@@ -15,12 +15,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDel
 
     let SERVICE_TYPE = "dft-gapdemo"
     let PeerID = MCPeerID(displayName: UIDevice.currentDevice().name)
-    
+    var session: MCSession!
     var window: UIWindow?
     var serviceBrowser: MCNearbyServiceBrowser?
     var serviceAdvertiser: MCNearbyServiceAdvertiser?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        
+        session = MCSession(peer: PeerID)
+        let vc = window?.rootViewController as ViewController
+        
+        vc.session = session
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
         
@@ -74,11 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDel
     }
     
     func registerSession (peerId: MCPeerID) -> MCSession {
-        let vc = window?.rootViewController as ViewController
-        if vc.session == nil {
-            vc.session = MCSession(peer: PeerID)
-        }
-       return vc.session!
+        return session
     }
 }
 
