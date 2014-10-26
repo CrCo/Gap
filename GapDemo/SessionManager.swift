@@ -14,25 +14,14 @@ protocol SessionManagerDelegate : NSObjectProtocol {
 }
 
 class SessionManager : NSObject, MCSessionDelegate {
-    
-    var sessions: [MCSession] = []
-    
+    var peerID: MCPeerID = MCPeerID(displayName: UIDevice.currentDevice().name)
+    var session: MCSession
     weak var delegate:  SessionManagerDelegate!
-    
-    func addSessionForPeer() -> MCSession? {
-        let newSession = MCSession(peer: MCPeerID(displayName: UIDevice.currentDevice().name))
-        newSession.delegate = self
-        return newSession
-    }
-    
-    func removeSession(session: MCSession) {
-        session.disconnect()
-        
-        if let index = find(sessions, session) {
-            sessions.removeAtIndex(index)
-        } else {
-            NSLog("❌: couldn't find session to remove")
-        }
+
+    override init() {
+        session = MCSession(peer: peerID)
+        super.init()
+        session.delegate = self
     }
     
     func session(session: MCSession!, peer peerID: MCPeerID!, didChangeState state: MCSessionState) {
@@ -43,7 +32,6 @@ class SessionManager : NSObject, MCSessionDelegate {
         case .NotConnected:
             NSLog("💔 \(peerID.displayName)")
             delegate.wallDidCloseToSide()
-            removeSession(session)
         case .Connecting:
             NSLog("💗")
         }

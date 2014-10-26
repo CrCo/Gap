@@ -11,21 +11,21 @@ import MultipeerConnectivity
 
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    let SERVICE_TYPE = "dft-gapdemo"
-    let PeerID = MCPeerID(displayName: UIDevice.currentDevice().name)
-    var session: MCSession!
+    var session: SessionManager!
+    var discoveryManager: DiscoveryManager!
     var window: UIWindow?
     var serviceBrowser: MCNearbyServiceBrowser?
     var serviceAdvertiser: MCNearbyServiceAdvertiser?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
-        session = MCSession(peer: PeerID)
-        let vc = window?.rootViewController as ViewController
+        session = SessionManager()
+        discoveryManager = DiscoveryManager(sessionManager: session)
         
-        vc.session = session
+        let vc = window?.rootViewController as ViewController
+        session.delegate = vc
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
         
@@ -35,69 +35,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDel
     }
     
     func didChangeDefaults() {
-        switch UIApplication.sharedApplication().operationMode {
-        case .Listener:
-            serviceBrowser = MCNearbyServiceBrowser(peer: PeerID, serviceType: SERVICE_TYPE);
-            serviceBrowser?.delegate = self
-            serviceBrowser?.startBrowsingForPeers()
-            
-            //If settings changed, ensure other mode is stopped
-            serviceAdvertiser?.stopAdvertisingPeer()
-            NSLog("👂")
-        case .Broadcaster:
-            serviceAdvertiser = MCNearbyServiceAdvertiser(peer: PeerID, discoveryInfo: nil, serviceType: SERVICE_TYPE)
-            serviceAdvertiser?.delegate = self
-            serviceAdvertiser?.startAdvertisingPeer()
-            
-            //If settings changed, ensure other mode is stopped
-            serviceBrowser?.stopBrowsingForPeers()
-            NSLog("🎵")
+        switch UIApplication.sharedApplication().role {
+        case .Middle:
+            discoveryManager.mode = .Listener
+        default:
+            discoveryManager.mode = .Broadcaster
         }
-    }
-
-    func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
-        NSLog("👉 \(peerID.displayName)")
-        browser.invitePeer(peerID, toSession: registerSession(peerID), withContext: nil, timeout: 0)
-    }
-    
-    func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
-        NSLog("Error browsing for peers: \(error)")
-    }
-    
-    func browser(browser: MCNearbyServiceBrowser!, lostPeer peerID: MCPeerID!) {
-        NSLog("❓ \(peerID.displayName)")
-    }
-    
-    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didNotStartAdvertisingPeer error: NSError!) {
-        NSLog("Error advertising for peers: \(error)")
-    }
-    
-    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
-        NSLog("👍 \(peerID.displayName)")
-        
-        invitationHandler(true, registerSession(peerID))
-    }
-    
-    func registerSession (peerId: MCPeerID) -> MCSession {
-        return session
     }
 }
 
-enum OperationMode {
-    case Broadcaster
-    case Listener
+
+enum MeshDisplayRole : String {
+    case Left = "left"
+    case Right = "right"
+    case Middle = "middle"
 }
 
 extension UIApplication {
-    var operationMode: OperationMode {
+    
+    var role: MeshDisplayRole {
         get {
             let positionSettings = NSUserDefaults.standardUserDefaults().stringForKey("position")
             
             switch positionSettings {
-            case let stringVal where stringVal == "middle":
-                return .Listener
+            case let stringVal where stringVal == MeshDisplayRole.Middle.rawValue:
+                return .Middle
+            case let stringVal where stringVal == MeshDisplayRole.Right.rawValue:
+                return .Right
+            case let stringVal where stringVal == MeshDisplayRole.Left.rawValue:
+                //Default is left
+                fallthrough
             default:
-                return .Broadcaster
+                return .Left
             }
         }
     }

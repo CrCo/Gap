@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		371058BB19FD5177004BC50A /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BA19FD5176004BC50A /* SessionManager.swift */; };
+		371058BD19FD5434004BC50A /* DiscoveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BC19FD5434004BC50A /* DiscoveryManager.swift */; };
 		371F630319FC151C00B56D02 /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 371F630219FC151C00B56D02 /* SpriteKit.framework */; };
 		3731E94119F974BE00D7B561 /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3731E94019F974BE00D7B561 /* StatusView.swift */; };
 		3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3779B88A19F9421800DC3CE5 /* AppDelegate.swift */; };
@@ -30,6 +32,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		371058BA19FD5176004BC50A /* SessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
+		371058BC19FD5434004BC50A /* DiscoveryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryManager.swift; sourceTree = "<group>"; };
 		371F630219FC151C00B56D02 /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
 		3731E94019F974BE00D7B561 /* StatusView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>"; };
 		3779B88519F9421800DC3CE5 /* GapDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GapDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +93,8 @@
 		3779B88719F9421800DC3CE5 /* GapDemo */ = {
 			isa = PBXGroup;
 			children = (
+				371058BC19FD5434004BC50A /* DiscoveryManager.swift */,
+				371058BA19FD5176004BC50A /* SessionManager.swift */,
 				3779B88A19F9421800DC3CE5 /* AppDelegate.swift */,
 				3779B88C19F9421800DC3CE5 /* ViewController.swift */,
 				3779B88E19F9421800DC3CE5 /* Main.storyboard */,
@@ -230,6 +236,8 @@
 			files = (
 				3779B88D19F9421800DC3CE5 /* ViewController.swift in Sources */,
 				3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */,
+				371058BB19FD5177004BC50A /* SessionManager.swift in Sources */,
+				371058BD19FD5434004BC50A /* DiscoveryManager.swift in Sources */,
 				3731E94119F974BE00D7B561 /* StatusView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
