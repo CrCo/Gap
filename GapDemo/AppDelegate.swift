@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDel
 
     func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
         NSLog("👉 \(peerID.displayName)")
-        browser.invitePeer(peerID, toSession: registerSession(peerID), withContext: nil, timeout: 0)
+        browser.invitePeer(peerID, toSession: sessionManager.addSessionForPeer(peerID, atPosition: .Right), withContext: nil, timeout: 0)
     }
     
     func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
@@ -70,15 +70,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDel
     func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
         NSLog("👍 \(peerID.displayName)")
         
-        invitationHandler(true, registerSession(peerID))
+        invitationHandler(true, sessionManager.addSessionForPeer(peerID, atPosition: .Left))
     }
     
-    func registerSession (peerId: MCPeerID) -> MCSession {
-        let vc = window?.rootViewController as ViewController
-        if vc.session == nil {
-            vc.session = MCSession(peer: PeerID)
+    var sessionManager: SessionManager {
+        get {
+            let vc = window?.rootViewController as ViewController
+            return vc.sessionManager
         }
-       return vc.session!
     }
 }
 
