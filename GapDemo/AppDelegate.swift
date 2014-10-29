@@ -12,21 +12,23 @@ import MultipeerConnectivity
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var session: SessionManager!
+    var sessionManager: SessionManager!
     var discoveryManager: DiscoveryManager!
     var window: UIWindow?
     var serviceBrowser: MCNearbyServiceBrowser?
     var serviceAdvertiser: MCNearbyServiceAdvertiser?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        
-        session = SessionManager()
-        discoveryManager = DiscoveryManager(sessionManager: session)
+        let session = MCSession(peer: MCPeerID(displayName: UIDevice.currentDevice().name))
+
+        discoveryManager = DiscoveryManager(session: session)
+        sessionManager = SessionManager(discoveryManager: discoveryManager)
+        session.delegate = sessionManager
         
         let vc = window?.rootViewController as ViewController
         
         vc.sessionManager = discoveryManager
-        session.delegate = vc
+        sessionManager.delegate = vc
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
         

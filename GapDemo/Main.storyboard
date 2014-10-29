@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="73M-53-XZE">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="AVL-aQ-w76">
+            <objects>
+                <viewController id="73M-53-XZE" customClass="ViewController" customModule="GapDemo" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Cdc-kh-2ad"/>
+                        <viewControllerLayoutGuide type="bottom" id="qFh-xT-5uE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ilc-qh-NiM">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7Ch-hz-Dc0" customClass="SKView">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fql-fg-1bq">
+                                <rect key="frame" x="274" y="545" width="53" height="30"/>
+                                <state key="normal" title="Refresh">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="shouldAdvertise:" destination="73M-53-XZE" eventType="touchUpInside" id="gfV-WK-VJ7"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="centerX" secondItem="fql-fg-1bq" secondAttribute="centerX" id="Ea3-HA-W5t"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="7Ch-hz-Dc0" secondAttribute="trailing" constant="-16" id="NLB-vl-oD5"/>
+                            <constraint firstItem="qFh-xT-5uE" firstAttribute="top" secondItem="fql-fg-1bq" secondAttribute="bottom" constant="25" id="kmD-Bw-j7u"/>
+                            <constraint firstItem="7Ch-hz-Dc0" firstAttribute="top" secondItem="Ilc-qh-NiM" secondAttribute="topMargin" id="mGQ-MX-LCA"/>
+                            <constraint firstItem="qFh-xT-5uE" firstAttribute="top" secondItem="7Ch-hz-Dc0" secondAttribute="bottom" id="uM4-hr-NB8"/>
+                            <constraint firstItem="7Ch-hz-Dc0" firstAttribute="leading" secondItem="Ilc-qh-NiM" secondAttribute="leadingMargin" constant="-16" id="wp7-Y4-mDc"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="spriteView" destination="7Ch-hz-Dc0" id="NRT-Zs-Wbg"/>
+                        <outlet property="view" destination="Ilc-qh-NiM" id="HP6-zz-aeH"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="OMk-gk-qqL" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="151" y="401"/>
+        </scene>
+    </scenes>
+</document>
