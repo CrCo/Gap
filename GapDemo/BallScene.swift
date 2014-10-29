@@ -19,7 +19,6 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     weak var transferDelegate: BallSceneDelegate!
     
-    var nodesToAdd = [SKNode]()
     var gates: (top: SKNode, right: SKNode, bottom: SKNode, left:SKNode)?
     var finger: SKFieldNode!
     
@@ -98,21 +97,14 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
             node.runAction(SKAction.removeFromParent())
         } else {
             if node.parent == nil {
-                nodesToAdd.append(node)
+                self.addChild(node)
             }
         }
     }
     
     override func didMoveToView(view: SKView) {
-        var color: SKColor
-        switch UIApplication.sharedApplication().role {
-        case MeshDisplayRole.Left: color = SKColor.greenColor()
-        case MeshDisplayRole.Middle: color = SKColor.blueColor()
-        case MeshDisplayRole.Right: color = SKColor.redColor()
-        }
-        
         for i in 1...2 {
-            self.addNode(color)
+            self.addNode()
         }
     }
     
@@ -121,7 +113,14 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func addNode(color: SKColor) {
+    func addNode() {
+        
+        var color: SKColor
+        switch UIApplication.sharedApplication().role {
+        case MeshDisplayRole.Left: color = SKColor.greenColor()
+        case MeshDisplayRole.Middle: color = SKColor.blueColor()
+        case MeshDisplayRole.Right: color = SKColor.redColor()
+        }
         
         var node = SKShapeNode(circleOfRadius: ballSize)
         node.strokeColor = SKColor.clearColor()
@@ -143,26 +142,33 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     func setPhysicsBodyOpenings(left:Bool, right:Bool) {
         NSLog("open left \(left) or right \(right)")
-        if let leftGate = gates?.left {
-            setGate(leftGate, toOpen: left)
+        if let leftGate = self.gates?.left {
+            self.setGate(leftGate, toOpen: left)
         }
-        if let rightGate = gates?.right {
-            setGate(rightGate, toOpen: right)
+        if let rightGate = self.gates?.right {
+            self.setGate(rightGate, toOpen: right)
         }
     }
     
     override func update(currentTime: NSTimeInterval) {
-        for node in nodesToAdd {
-            self.addChild(node)
-        }
-        
-        nodesToAdd.removeAll(keepCapacity: true)
         
         self.enumerateChildNodesWithName("ball") { (node, shouldStop) -> Void in
             if node.position.x > self.frame.width + ballSize {
-                self.moveNode(node, toSide: .Right)
-            } else if node.position.x < -ballSize {
-                self.moveNode(node, toSide: .Left)
+                if  self.gates?.right.parent == nil {
+                    //send on its way
+                    self.moveNode(node, toSide: .Right)
+                } else {
+                    //this guy is trapped on the wrong side of the wall
+                    self.resetBall(node, attemptedSide: .Right)
+                }
+            } else if node.position.x < -ballSize && self.gates?.left.parent == nil {
+                if  self.gates?.left.parent == nil {
+                    //send on its way
+                    self.moveNode(node, toSide: .Left)
+                } else {
+                    //this guy is trapped on the wrong side of the wall
+                    self.resetBall(node, attemptedSide: .Left)
+                }
             }
         }
     }
@@ -206,7 +212,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
         finger.position = touch.locationInNode(self)
-        nodesToAdd.append(finger)
+        self.addChild(finger)
     }
     
     override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
@@ -245,7 +251,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         
         node.physicsBody = body
         
-        nodesToAdd.append(node)
+        self.addChild(node)
         
         body.velocity = CGVector(dx: CGFloat(data["velocityX"] as Float), dy: CGFloat(data["velocityY"] as Float))
     }

@@ -19,6 +19,18 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7Ch-hz-Dc0" customClass="SKView">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="diC-Rg-EeA">
+                                        <rect key="frame" x="398" y="544" width="39" height="30"/>
+                                        <state key="normal" title="Spew">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="shouldAdvertise:" destination="73M-53-XZE" eventType="touchUpInside" id="Myr-X5-PKV"/>
+                                            <action selector="shouldSpew:" destination="73M-53-XZE" eventType="touchUpInside" id="Zgm-xV-ai7"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fql-fg-1bq">
@@ -34,9 +46,11 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="centerX" secondItem="fql-fg-1bq" secondAttribute="centerX" id="Ea3-HA-W5t"/>
+                            <constraint firstItem="diC-Rg-EeA" firstAttribute="centerY" secondItem="fql-fg-1bq" secondAttribute="centerY" constant="-1" id="LeT-3F-gcv"/>
                             <constraint firstAttribute="trailingMargin" secondItem="7Ch-hz-Dc0" secondAttribute="trailing" constant="-16" id="NLB-vl-oD5"/>
                             <constraint firstItem="qFh-xT-5uE" firstAttribute="top" secondItem="fql-fg-1bq" secondAttribute="bottom" constant="25" id="kmD-Bw-j7u"/>
                             <constraint firstItem="7Ch-hz-Dc0" firstAttribute="top" secondItem="Ilc-qh-NiM" secondAttribute="topMargin" id="mGQ-MX-LCA"/>
+                            <constraint firstItem="diC-Rg-EeA" firstAttribute="leading" secondItem="fql-fg-1bq" secondAttribute="trailing" constant="71" id="sNG-J4-zAi"/>
                             <constraint firstItem="qFh-xT-5uE" firstAttribute="top" secondItem="7Ch-hz-Dc0" secondAttribute="bottom" id="uM4-hr-NB8"/>
                             <constraint firstItem="7Ch-hz-Dc0" firstAttribute="leading" secondItem="Ilc-qh-NiM" secondAttribute="leadingMargin" constant="-16" id="wp7-Y4-mDc"/>
                         </constraints>

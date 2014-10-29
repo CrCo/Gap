@@ -16,6 +16,9 @@ class ViewController: UIViewController, SessionManagerDelegate {
     var scene: BallScene!
     var openSides: (Bool, Bool) = (false, false)
     
+    @IBAction func shouldSpew(sender: AnyObject) {
+        scene.addNode()
+    }
     @IBOutlet weak var spriteView: SKView!
     @IBAction func shouldAdvertise(sender: AnyObject) {
         sessionManager.browseAgain()
@@ -42,7 +45,9 @@ class ViewController: UIViewController, SessionManagerDelegate {
         case .Left: openSides = (true, openSides.1)
         case .Right: openSides = (openSides.0, true)
         }
-        scene.setPhysicsBodyOpenings(openSides.0, right: openSides.1)
+        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+            self.scene.setPhysicsBodyOpenings(self.openSides.0, right: self.openSides.1)
+        }
     }
     
     func wallDidCloseToSide(side: Side) {
@@ -50,11 +55,15 @@ class ViewController: UIViewController, SessionManagerDelegate {
         case .Left: openSides = (false, openSides.1)
         case .Right: openSides = (openSides.0, false)
         }
-        scene.setPhysicsBodyOpenings(openSides.0, right: openSides.1)
+        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+            self.scene.setPhysicsBodyOpenings(self.openSides.0, right: self.openSides.1)
+        }
     }
     
     func shouldAddNewNode(data: [String : AnyObject], fromSide side: Side) {
-        scene.addNeighborNode(data, fromSide: side)
+        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+            self.scene.addNeighborNode(data, fromSide: side)
+        }
     }
     
     override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
