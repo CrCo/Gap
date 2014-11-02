@@ -29,6 +29,47 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
             }
         }
     }
+
+    override init() {
+        super.init(size: CGSize(width: height, height: height))
+        
+        physicsWorld.contactDelegate = self
+        self.backgroundColor = SKColor.whiteColor()
+        finger = SKFieldNode.springField()
+        finger.strength = -0.7
+        finger.falloff = 0.0000001
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func moveNodesToGraph() {
+        var graphHeight = [0,0,0]
+        enumerateChildNodesWithName("ball") { (node, stop) -> Void in
+            node.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+            
+            let colorIndex: Int = find([SKColor.greenColor(), SKColor.blueColor(), SKColor.redColor()], (node as SKShapeNode).fillColor)!
+            let width = Int(self.size.width)
+            let point = CGPoint(x: CGFloat(width / 2 + (colorIndex - 1) * 30 * 2), y: CGFloat(30 + 30 * 2 * graphHeight[colorIndex]))
+            
+            node.runAction(SKAction.moveTo(point, duration: 0.4), withKey: "move")
+            graphHeight[colorIndex]++
+        }
+    }
+    
+    var sortFieldActive: Bool = false {
+        didSet {
+            if sortFieldActive {
+                moveNodesToGraph()
+            } else {
+                enumerateChildNodesWithName("ball") { (node, stop) -> Void in
+                    node.removeActionForKey("move")
+                    node.physicsBody!.velocity = CGVector(dx: Int(arc4random_uniform(400)) - 200, dy: Int(arc4random_uniform(400)) - 200)
+                }
+            }
+        }
+    }
     
     override func didChangeSize(oldSize: CGSize) {
         var openGates = (top:false, left: false, bottom: false, right:false)
@@ -82,16 +123,6 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    override init() {
-        super.init(size: CGSize(width: height, height: height))
-        
-        physicsWorld.contactDelegate = self
-        self.backgroundColor = SKColor.whiteColor()
-        finger = SKFieldNode.springField()
-        finger.strength = -0.7
-        finger.falloff = 0.0000001
-    }
-    
     func setGate(node: SKNode, toOpen open: Bool ) {
         if (open) {
             node.runAction(SKAction.removeFromParent())
@@ -106,11 +137,6 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         for i in 1...2 {
             self.addNode()
         }
-    }
-    
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     func addNode() {
@@ -211,17 +237,35 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
 
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
-        finger.position = touch.locationInNode(self)
-        self.addChild(finger)
+        
+        switch UIApplication.sharedApplication().role {
+        case .Middle:
+            sortFieldActive = true
+        default:
+            finger.position = touch.locationInNode(self)
+            self.addChild(finger)
+        }
     }
     
     override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
+        
+        switch UIApplication.sharedApplication().role {
+        case .Middle:
+            break
+        default:
         finger.position = touch.locationInNode(self)
+        }
     }
     
     override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
+        
+        switch UIApplication.sharedApplication().role {
+        case .Middle:
+            sortFieldActive = false
+        default:
         finger.runAction(SKAction.removeFromParent())
+        }
     }
     
     func addNeighborNode(data: [String: AnyObject], fromSide side: Side) {
@@ -253,6 +297,10 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         
         self.addChild(node)
         
-        body.velocity = CGVector(dx: CGFloat(data["velocityX"] as Float), dy: CGFloat(data["velocityY"] as Float))
+        if sortFieldActive {
+            moveNodesToGraph()
+        } else {
+            body.velocity = CGVector(dx: CGFloat(data["velocityX"] as Float), dy: CGFloat(data["velocityY"] as Float))
+        }
     }
 }

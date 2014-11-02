@@ -7,37 +7,40 @@
 //
 
 import MultipeerConnectivity
-import Dispatch
 
 enum OperationMode {
     case Broadcaster
     case Listener
 }
 
-class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate, BallSceneDelegate  {
+enum Side: String {
+    case Left = "left"
+    case Right = "right"
+}
+
+protocol MeshConnectionManagerDelegate : NSObjectProtocol {
+    func wallDidOpenToSide(Side)
+    func wallDidCloseToSide(Side)
+    func shouldAddNewNode(data: [String: AnyObject], fromSide side: Side)
+}
+
+class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate, MCSessionDelegate  {
     
     let positionKey = "position"
     
-    var browser: MCNearbyServiceBrowser!
-    var advertiser: MCNearbyServiceAdvertiser!
-    var session: MCSession
+    weak var delegate:  MeshConnectionManagerDelegate!
+    
+    var browser: MCNearbyServiceBrowser
+    var advertiser: MCNearbyServiceAdvertiser
+    var session: MCSession = MCSession(peer: MCPeerID(displayName: UIDevice.currentDevice().name))
+
     let serviceType = "dft-gapdemo"
     var hubPeer: MCPeerID?
     var peerMap: [MCPeerID: MeshDisplayRole] = [MCPeerID: MeshDisplayRole]()
-
-    init(session: MCSession) {
-        self.session = session
-    }
+    
     
     var mode: OperationMode = .Listener {
         didSet {
-
-            browser = MCNearbyServiceBrowser(peer: session.myPeerID, serviceType: serviceType);
-            advertiser = MCNearbyServiceAdvertiser(peer: session.myPeerID, discoveryInfo: [positionKey: UIApplication.sharedApplication().role.rawValue], serviceType: serviceType)
-            
-            browser.delegate = self
-            advertiser.delegate = self
-            
             switch mode {
             case .Listener:
                 browser.startBrowsingForPeers()
@@ -50,6 +53,20 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
             }
         }
     }
+
+
+    override init() {
+        browser = MCNearbyServiceBrowser(peer: session.myPeerID, serviceType: serviceType);
+        advertiser = MCNearbyServiceAdvertiser(peer: session.myPeerID, discoveryInfo: [positionKey: UIApplication.sharedApplication().role.rawValue], serviceType: serviceType)
+        
+        super.init()
+        
+        browser.delegate = self
+        advertiser.delegate = self
+        session.delegate = self
+    }
+    
+    //MARK: utility
     
     func convertToSide(peer: MCPeerID) -> Side? {
         switch UIApplication.sharedApplication().role {
@@ -91,7 +108,13 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
         }
         return nil
     }
-
+    
+    func invitePeer(peerID: MCPeerID) {
+        NSLog("👉 Invite \(peerID.displayName)")
+        browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
+    }
+    
+    //MARK: Public members
     
     func browseAgain() {
         if mode == .Listener {
@@ -101,12 +124,24 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
         }
     }
     
-    
-    func sendNextInvitation(peerID: MCPeerID) {
-        NSLog("👉 Invite \(peerID.displayName)")
-
-        browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
+    func shouldTransferBall(ball: [String: AnyObject], toSide side: Side, error: NSErrorPointer) {
+        if let peer: MCPeerID = convertFromSide(side) {
+            var err: NSError? = nil
+            let data = NSJSONSerialization.dataWithJSONObject(ball, options: nil, error: &err)
+            if err == nil {
+                session.sendData(data, toPeers: [peer], withMode: MCSessionSendDataMode.Reliable, error: &err)
+                if err != nil {
+                    error.memory = err
+                }
+            } else {
+                error.memory = err
+            }
+        } else {
+            error.memory = NSError(domain: "DiscoveryManager", code: 1, userInfo: ["NSLocalizedDescription": "Could not convert side \(side.rawValue) for role \(UIApplication.sharedApplication().role.rawValue)"])
+        }
     }
+    
+    //MARK: Browser delegate
     
     func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
         
@@ -117,10 +152,10 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
                 //sessionManager.reset()
                 NSLog("❓ Won't invite \(peerID.displayName) since it is already connected")
             } else {
-                sendNextInvitation(peerID)
+                invitePeer(peerID)
             }
         } else {
-            sendNextInvitation(peerID)
+            invitePeer(peerID)
         }
     }
 
@@ -133,6 +168,8 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
         
         //peerMap.removeValueForKey(peerID)
     }
+    
+    //MARK: Advertiser delegate
 
     func advertiser(advertiser: MCNearbyServiceAdvertiser!, didNotStartAdvertisingPeer error: NSError!) {
         NSLog("Error advertising for peers: \(error)")
@@ -157,20 +194,73 @@ class DiscoveryManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServic
         }
     }
     
-    func shouldTransferBall(ball: [String: AnyObject], toSide side: Side, error: NSErrorPointer) {
-        if let peer: MCPeerID = convertFromSide(side) {
-            var err: NSError? = nil
-            let data = NSJSONSerialization.dataWithJSONObject(ball, options: nil, error: &err)
-            if err == nil {
-                session.sendData(data, toPeers: [peer], withMode: MCSessionSendDataMode.Reliable, error: &err)
-                if err != nil {
-                    error.memory = err
-                }
-            } else {
-               error.memory = err
+    //MARK: Session Delegate
+    
+    func session(session: MCSession!, peer peerID: MCPeerID!, didChangeState state: MCSessionState) {
+        switch (state) {
+        case .Connected:
+            NSLog("💏 \(peerID.displayName)")
+            
+            if let side = self.convertToSide(peerID) {
+                delegate.wallDidOpenToSide(side)
             }
-        } else {
-            error.memory = NSError(domain: "DiscoveryManager", code: 1, userInfo: ["NSLocalizedDescription": "Could not convert side \(side.rawValue) for role \(UIApplication.sharedApplication().role.rawValue)"])
+            switch UIApplication.sharedApplication().role {
+            case .Middle:
+                if session.connectedPeers.count == 2 {
+                    NSLog("❌👂")
+                    self.browser.stopBrowsingForPeers()
+                }
+            default:
+                if peerID == self.hubPeer! {
+                    NSLog("❌🎵")
+                    self.advertiser.stopAdvertisingPeer()
+                }
+            }
+        case .NotConnected:
+            NSLog("💔 \(peerID.displayName)")
+            
+            switch UIApplication.sharedApplication().role {
+            case .Middle:
+                //Helps to have a delay
+                NSLog("👂")
+                self.browser.startBrowsingForPeers()
+            default:
+                if peerID == self.hubPeer! {
+                    NSLog("🎵")
+                    self.advertiser.startAdvertisingPeer()
+                }
+            }
+            
+            if let side = self.convertToSide(peerID) {
+                delegate.wallDidCloseToSide(side)
+            }
+            
+        case .Connecting:
+            NSLog("💗")
         }
+    }
+    
+    func session(session: MCSession!, didReceiveData data: NSData!, fromPeer peerID: MCPeerID!) {
+        let string = NSString(data: data, encoding: NSUTF8StringEncoding)
+        
+        var err: NSError? = nil
+        let obj = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &err) as [String: AnyObject]
+        if err == nil {
+            if let side = self.convertToSide(peerID) {
+                delegate.shouldAddNewNode(obj, fromSide: side)
+            }
+        }
+    }
+    
+    func session(session: MCSession!, didFinishReceivingResourceWithName resourceName: String!, fromPeer peerID: MCPeerID!, atURL localURL: NSURL!, withError error: NSError!) {
+        fatalError("Shouldn't receive resource")
+    }
+    
+    func session(session: MCSession!, didReceiveStream stream: NSInputStream!, withName streamName: String!, fromPeer peerID: MCPeerID!) {
+        fatalError("Shouldn't receive stream")
+    }
+    
+    func session(session: MCSession!, didStartReceivingResourceWithName resourceName: String!, fromPeer peerID: MCPeerID!, withProgress progress: NSProgress!) {
+        fatalError("Shouldn't receive resource")
     }
 }

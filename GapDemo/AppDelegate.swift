@@ -12,23 +12,9 @@ import MultipeerConnectivity
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var sessionManager: SessionManager!
-    var discoveryManager: DiscoveryManager!
     var window: UIWindow?
-    var serviceBrowser: MCNearbyServiceBrowser?
-    var serviceAdvertiser: MCNearbyServiceAdvertiser?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        let session = MCSession(peer: MCPeerID(displayName: UIDevice.currentDevice().name))
-
-        discoveryManager = DiscoveryManager(session: session)
-        sessionManager = SessionManager(discoveryManager: discoveryManager)
-        session.delegate = sessionManager
-        
-        let vc = window?.rootViewController as ViewController
-        
-        vc.sessionManager = discoveryManager
-        sessionManager.delegate = vc
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
         
@@ -38,11 +24,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func didChangeDefaults() {
+        var vc = window?.rootViewController as ViewController
+        
         switch UIApplication.sharedApplication().role {
         case .Middle:
-            discoveryManager.mode = .Listener
+            vc.meshConnectionManager.mode = .Listener
         default:
-            discoveryManager.mode = .Broadcaster
+            vc.meshConnectionManager.mode = .Broadcaster
         }
     }
 }

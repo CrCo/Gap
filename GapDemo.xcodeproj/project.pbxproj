@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		371058BB19FD5177004BC50A /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BA19FD5176004BC50A /* SessionManager.swift */; };
 		371058BD19FD5434004BC50A /* DiscoveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BC19FD5434004BC50A /* DiscoveryManager.swift */; };
 		371F630319FC151C00B56D02 /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 371F630219FC151C00B56D02 /* SpriteKit.framework */; };
 		375A1A3219FDDBA200262055 /* BallScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375A1A3119FDDBA200262055 /* BallScene.swift */; };
@@ -32,7 +31,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		371058BA19FD5176004BC50A /* SessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 		371058BC19FD5434004BC50A /* DiscoveryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryManager.swift; sourceTree = "<group>"; };
 		371F630219FC151C00B56D02 /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
 		375A1A3119FDDBA200262055 /* BallScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallScene.swift; sourceTree = "<group>"; };
@@ -95,7 +93,6 @@
 			children = (
 				37D2DDAB19FDA37F00152F25 /* ViewController.swift */,
 				371058BC19FD5434004BC50A /* DiscoveryManager.swift */,
-				371058BA19FD5176004BC50A /* SessionManager.swift */,
 				3779B88A19F9421800DC3CE5 /* AppDelegate.swift */,
 				375A1A3119FDDBA200262055 /* BallScene.swift */,
 				378BEF1619FDA2AB00C8166A /* Main.storyboard */,
@@ -235,7 +232,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */,
-				371058BB19FD5177004BC50A /* SessionManager.swift in Sources */,
 				37D2DDAC19FDA37F00152F25 /* ViewController.swift in Sources */,
 				371058BD19FD5434004BC50A /* DiscoveryManager.swift in Sources */,
 				375A1A3219FDDBA200262055 /* BallScene.swift in Sources */,

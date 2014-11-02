@@ -10,9 +10,10 @@ import UIKit
 import MultipeerConnectivity
 import SpriteKit
 
-class ViewController: UIViewController, SessionManagerDelegate {
+class ViewController: UIViewController, MeshConnectionManagerDelegate, BallSceneDelegate {
     
-    var sessionManager: DiscoveryManager!
+    var meshConnectionManager: MeshConnectionManager = MeshConnectionManager()
+
     var scene: BallScene!
     var openSides: (Bool, Bool) = (false, false)
     
@@ -21,17 +22,22 @@ class ViewController: UIViewController, SessionManagerDelegate {
     }
     @IBOutlet weak var spriteView: SKView!
     @IBAction func shouldAdvertise(sender: AnyObject) {
-        sessionManager.browseAgain()
+        meshConnectionManager.browseAgain()
     }
+    
+    func shouldTransferBall(ball: [String: AnyObject], toSide side: Side, error: NSErrorPointer) {
+        meshConnectionManager.shouldTransferBall(ball, toSide: side, error: error)
+    }
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        
+        meshConnectionManager.delegate = self
         
         scene = BallScene()
         let size = self.view.frame.size
         scene.aspectRatio = CGFloat(size.width/size.height)
-        scene.transferDelegate = sessionManager
+        scene.transferDelegate = self
         spriteView.presentScene(scene)
     }
 
@@ -70,6 +76,5 @@ class ViewController: UIViewController, SessionManagerDelegate {
         let size = self.view.frame.size
         scene.aspectRatio = CGFloat(size.width/size.height)
     }
-    
 }
 
