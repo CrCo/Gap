@@ -7,7 +7,11 @@
 //
 
 import UIKit
-import MultipeerConnectivity
+
+enum OperationMode {
+    case Broadcaster
+    case Listener
+}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -26,38 +30,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func didChangeDefaults() {
         var vc = window?.rootViewController as ViewController
         
-        switch UIApplication.sharedApplication().role {
-        case .Middle:
-            vc.meshConnectionManager.mode = .Listener
-        default:
-            vc.meshConnectionManager.mode = .Broadcaster
-        }
-    }
-}
-
-enum MeshDisplayRole : String {
-    case Left = "left"
-    case Right = "right"
-    case Middle = "middle"
-}
-
-extension UIApplication {
-    
-    var role: MeshDisplayRole {
-        get {
-            let positionSettings = NSUserDefaults.standardUserDefaults().stringForKey("position")
-            
-            switch positionSettings {
-            case let stringVal where stringVal == MeshDisplayRole.Middle.rawValue:
-                return .Middle
-            case let stringVal where stringVal == MeshDisplayRole.Right.rawValue:
-                return .Right
-            case let stringVal where stringVal == MeshDisplayRole.Left.rawValue:
-                //Default is left
-                fallthrough
-            default:
-                return .Left
-            }
+        if NSUserDefaults.standardUserDefaults().boolForKey("role") {
+            vc.mode = .Listener
+        } else {
+            vc.mode = .Broadcaster
         }
     }
 }

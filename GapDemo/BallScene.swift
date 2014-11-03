@@ -11,8 +11,13 @@ import SpriteKit
 let ballSize : CGFloat = 30.0
 let height: CGFloat = 400
 
+enum Side: String {
+    case Left = "left"
+    case Right = "right"
+}
+
 protocol BallSceneDelegate: NSObjectProtocol {
-    func shouldTransferBall(ball: [String: AnyObject], toSide side: Side, error: NSErrorPointer)
+    func scene(scene: BallScene, ball: Ball, didMoveOffscreen side: Side)
 }
 
 class BallScene : SKScene, SKPhysicsContactDelegate {
@@ -29,8 +34,12 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
             }
         }
     }
+    
+    var type: BallType
 
-    override init() {
+    init(type: BallType) {
+        self.type = type
+        
         super.init(size: CGSize(width: height, height: height))
         
         physicsWorld.contactDelegate = self
@@ -135,23 +144,30 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     override func didMoveToView(view: SKView) {
         for i in 1...2 {
-            self.addNode()
+            self.addNode(generateRandomBall())
         }
     }
     
-    func addNode() {
+    func generateRandomBall() -> Ball {
+        let randomPosition = CGPoint(x: Int(arc4random_uniform(UInt32(self.frame.width))), y: Int(arc4random_uniform(UInt32(self.frame.height))))
+        let randomVelocity = CGVector(dx: Int(arc4random_uniform(400)) - 200, dy: Int(arc4random_uniform(400)) - 200)
+        
+        return Ball(type: type, position: randomPosition, velocity: randomVelocity)
+    }
+    
+    func addNode(ball: Ball) {
         
         var color: SKColor
-        switch UIApplication.sharedApplication().role {
-        case MeshDisplayRole.Left: color = SKColor.greenColor()
-        case MeshDisplayRole.Middle: color = SKColor.blueColor()
-        case MeshDisplayRole.Right: color = SKColor.redColor()
+        switch ball.type {
+        case .Green: color = SKColor.greenColor()
+        case .Blue: color = SKColor.blueColor()
+        case .Red: color = SKColor.redColor()
         }
         
         var node = SKShapeNode(circleOfRadius: ballSize)
         node.strokeColor = SKColor.clearColor()
         node.fillColor = color
-        node.position = CGPoint(x: Int(arc4random_uniform(UInt32(self.frame.width))), y: Int(arc4random_uniform(UInt32(self.frame.height))))
+        node.position = ball.position
         node.name = "ball"
         
         let body = SKPhysicsBody(circleOfRadius: ballSize)
@@ -163,7 +179,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         node.physicsBody = body
         self.addChild(node)
         
-        body.velocity = CGVector(dx: Int(arc4random_uniform(400)) - 200, dy: Int(arc4random_uniform(400)) - 200)
+        body.velocity = ball.velocity
     }
     
     func setPhysicsBodyOpenings(left:Bool, right:Bool) {
@@ -201,19 +217,27 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     private func moveNode(node: SKNode, toSide side: Side) {
         if let v = node.physicsBody?.velocity {
-            var color: String
+            var type: BallType
             
             switch (node as SKShapeNode).fillColor {
-            case SKColor.greenColor(): color = MeshDisplayRole.Left.rawValue
-            case SKColor.blueColor(): color = MeshDisplayRole.Middle.rawValue
-            case SKColor.redColor(): color = MeshDisplayRole.Right.rawValue
-            default: color = "oops"
+            case SKColor.greenColor(): type = .Green
+            case SKColor.blueColor(): type = .Blue
+            case SKColor.redColor(): type = .Red
+            default: fatalError("Node doesn't have normal colour")
             }
             
-            let ball: [String: AnyObject] = ["color": color, "yPosition": Int(node.position.y), "velocityX": Float(v.dx), "velocityY": Float(v.dy)]
+            var position = node.position
+            switch side {
+            case .Left:
+                position.x = self.frame.width + ballSize
+            case .Right:
+                position.x = -ballSize
+            }
+            
+            let ball = Ball(type:type, position: position, velocity: v)
             
             var err: NSError? = nil
-            transferDelegate.shouldTransferBall(ball, toSide: side, error: &err)
+            transferDelegate.scene(self, ball: ball, didMoveOffscreen: side)
             if err == nil {
                 NSLog("🎾 from \(side.rawValue)")
                 node.runAction(SKAction.removeFromParent())
@@ -237,70 +261,16 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
 
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
-        
-        switch UIApplication.sharedApplication().role {
-        case .Middle:
-            sortFieldActive = true
-        default:
-            finger.position = touch.locationInNode(self)
-            self.addChild(finger)
-        }
+        finger.position = touch.locationInNode(self)
+        self.addChild(finger)
     }
     
     override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
-        
-        switch UIApplication.sharedApplication().role {
-        case .Middle:
-            break
-        default:
         finger.position = touch.locationInNode(self)
-        }
     }
     
     override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
-        
-        switch UIApplication.sharedApplication().role {
-        case .Middle:
-            sortFieldActive = false
-        default:
         finger.runAction(SKAction.removeFromParent())
-        }
-    }
-    
-    func addNeighborNode(data: [String: AnyObject], fromSide side: Side) {
-        var node = SKShapeNode(circleOfRadius: ballSize)
-        node.name = "ball"
-        node.strokeColor = SKColor.clearColor()
-
-        if let c = data["color"] as? String {
-            switch c {
-            case MeshDisplayRole.Left.rawValue: node.fillColor = SKColor.greenColor()
-            case MeshDisplayRole.Middle.rawValue: node.fillColor = SKColor.blueColor()
-            case MeshDisplayRole.Right.rawValue: node.fillColor = SKColor.redColor()
-            default: break
-            }
-        }
-        switch side {
-        case .Left: node.position = CGPoint(x: -ballSize, y: CGFloat(data["yPosition"] as Int))
-        case .Right: node.position = CGPoint(x: self.frame.width + ballSize, y: CGFloat(data["yPosition"] as Int))
-        }
-        
-        let body = SKPhysicsBody(circleOfRadius: ballSize)
-        body.affectedByGravity = false
-        body.friction = 0
-        body.linearDamping = 0.0
-        body.restitution = 1.0
-        body.contactTestBitMask = 1
-        
-        node.physicsBody = body
-        
-        self.addChild(node)
-        
-        if sortFieldActive {
-            moveNodesToGraph()
-        } else {
-            body.velocity = CGVector(dx: CGFloat(data["velocityX"] as Float), dy: CGFloat(data["velocityY"] as Float))
-        }
     }
 }

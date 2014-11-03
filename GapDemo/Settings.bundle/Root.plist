@@ -6,31 +6,19 @@
 	<array>
 		<dict>
 			<key>Title</key>
-			<string>Position</string>
+			<string>Role</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 		</dict>
 		<dict>
 			<key>Type</key>
-			<string>PSMultiValueSpecifier</string>
+			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Position of Device</string>
+			<string>Device controls connections</string>
 			<key>Key</key>
-			<string>position</string>
+			<string>role</string>
 			<key>DefaultValue</key>
-			<string>left</string>
-			<key>Values</key>
-			<array>
-				<string>left</string>
-				<string>middle</string>
-				<string>right</string>
-			</array>
-			<key>Titles</key>
-			<array>
-				<string>Left</string>
-				<string>Middle</string>
-				<string>Right</string>
-			</array>
+			<false/>
 		</dict>
 	</array>
 	<key>StringsTable</key>
