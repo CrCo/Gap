@@ -8,11 +8,6 @@
 
 import UIKit
 
-enum OperationMode {
-    case Broadcaster
-    case Listener
-}
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -20,20 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
-        
-        didChangeDefaults()
-        
         return true
-    }
-    
-    func didChangeDefaults() {
-        var vc = window?.rootViewController as ViewController
-        
-        if NSUserDefaults.standardUserDefaults().boolForKey("role") {
-            vc.mode = .Listener
-        } else {
-            vc.mode = .Broadcaster
-        }
     }
 }

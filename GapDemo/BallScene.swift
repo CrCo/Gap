@@ -17,7 +17,7 @@ enum Side: String {
 }
 
 protocol BallSceneDelegate: NSObjectProtocol {
-    func scene(scene: BallScene, ball: Ball, didMoveOffscreen side: Side)
+    func scene(scene: BallScene, ball: BallTransferRepresentation, didMoveOffscreen side: Side)
 }
 
 class BallScene : SKScene, SKPhysicsContactDelegate {
@@ -148,14 +148,14 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func generateRandomBall() -> Ball {
+    func generateRandomBall() -> BallTransferRepresentation {
         let randomPosition = CGPoint(x: Int(arc4random_uniform(UInt32(self.frame.width))), y: Int(arc4random_uniform(UInt32(self.frame.height))))
         let randomVelocity = CGVector(dx: Int(arc4random_uniform(400)) - 200, dy: Int(arc4random_uniform(400)) - 200)
         
-        return Ball(type: type, position: randomPosition, velocity: randomVelocity)
+        return BallTransferRepresentation(type: type, position: randomPosition, velocity: randomVelocity)
     }
     
-    func addNode(ball: Ball) {
+    func addNode(ball: BallTransferRepresentation) {
         
         var color: SKColor
         switch ball.type {
@@ -167,7 +167,18 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         var node = SKShapeNode(circleOfRadius: ballSize)
         node.strokeColor = SKColor.clearColor()
         node.fillColor = color
-        node.position = ball.position
+        
+        var position = ball.position
+        
+        if ball.velocity.dx < 0 {
+            //Moving left
+            position.x = self.frame.width + 30
+        } else {
+            //Moving right
+            position.x = -30
+        }
+        
+        node.position = position
         node.name = "ball"
         
         let body = SKPhysicsBody(circleOfRadius: ballSize)
@@ -226,25 +237,10 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
             default: fatalError("Node doesn't have normal colour")
             }
             
-            var position = node.position
-            switch side {
-            case .Left:
-                position.x = self.frame.width + ballSize
-            case .Right:
-                position.x = -ballSize
-            }
+            let ball = BallTransferRepresentation(type:type, position: node.position, velocity: v)
             
-            let ball = Ball(type:type, position: position, velocity: v)
-            
-            var err: NSError? = nil
             transferDelegate.scene(self, ball: ball, didMoveOffscreen: side)
-            if err == nil {
-                NSLog("🎾 from \(side.rawValue)")
-                node.runAction(SKAction.removeFromParent())
-            } else {
-                NSLog("❌🎾 from \(side.rawValue): \(err?.localizedDescription)")
-                resetBall(node, attemptedSide: side)
-            }
+            node.removeFromParent()
         }
     }
     

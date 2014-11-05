@@ -15,13 +15,13 @@
 		3779B89519F9421900DC3CE5 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3779B89319F9421900DC3CE5 /* LaunchScreen.xib */; };
 		3779B8A119F9421900DC3CE5 /* GapDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3779B8A019F9421900DC3CE5 /* GapDemoTests.swift */; };
 		3779B8AB19F9424A00DC3CE5 /* MultipeerConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3779B8AA19F9424A00DC3CE5 /* MultipeerConnectivity.framework */; };
+		377F0A031A09B49E00966844 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 377F0A021A09B49E00966844 /* CoreMotion.framework */; };
+		377F0A051A09E42800966844 /* MotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F0A041A09E42800966844 /* MotionManager.swift */; };
 		37813B4E19FA905900DD5CDE /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 37813B4D19FA905900DD5CDE /* Settings.bundle */; };
 		378BEF1719FDA2AB00C8166A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 378BEF1619FDA2AB00C8166A /* Main.storyboard */; };
 		37D2DDAC19FDA37F00152F25 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D2DDAB19FDA37F00152F25 /* ViewController.swift */; };
-		37D7D8AC1A05D003006E2DBD /* Ball.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D7D8AB1A05D003006E2DBD /* Ball.swift */; };
 		37E2E0B81A06F41200FB9F99 /* SpatialOrderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */; };
-		37E2E0BA1A073E7100FB9F99 /* SpatialTopologyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E2E0B91A073E7100FB9F99 /* SpatialTopologyRequest.swift */; };
-		37E2E0BC1A07416600FB9F99 /* Serializeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E2E0BB1A07416600FB9F99 /* Serializeable.swift */; };
+		37E2E0BA1A073E7100FB9F99 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E2E0B91A073E7100FB9F99 /* Message.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,13 +47,13 @@
 		3779B89F19F9421900DC3CE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3779B8A019F9421900DC3CE5 /* GapDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GapDemoTests.swift; sourceTree = "<group>"; };
 		3779B8AA19F9424A00DC3CE5 /* MultipeerConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MultipeerConnectivity.framework; path = System/Library/Frameworks/MultipeerConnectivity.framework; sourceTree = SDKROOT; };
+		377F0A021A09B49E00966844 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		377F0A041A09E42800966844 /* MotionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionManager.swift; sourceTree = "<group>"; };
 		37813B4D19FA905900DD5CDE /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		378BEF1619FDA2AB00C8166A /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		37D2DDAB19FDA37F00152F25 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		37D7D8AB1A05D003006E2DBD /* Ball.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ball.swift; sourceTree = "<group>"; };
 		37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpatialOrderManager.swift; sourceTree = "<group>"; };
-		37E2E0B91A073E7100FB9F99 /* SpatialTopologyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpatialTopologyRequest.swift; sourceTree = "<group>"; };
-		37E2E0BB1A07416600FB9F99 /* Serializeable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Serializeable.swift; sourceTree = "<group>"; };
+		37E2E0B91A073E7100FB9F99 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				377F0A031A09B49E00966844 /* CoreMotion.framework in Frameworks */,
 				371F630319FC151C00B56D02 /* SpriteKit.framework in Frameworks */,
 				3779B8AB19F9424A00DC3CE5 /* MultipeerConnectivity.framework in Frameworks */,
 			);
@@ -79,6 +80,7 @@
 		3779B87C19F9421800DC3CE5 = {
 			isa = PBXGroup;
 			children = (
+				377F0A021A09B49E00966844 /* CoreMotion.framework */,
 				371F630219FC151C00B56D02 /* SpriteKit.framework */,
 				3779B8AA19F9424A00DC3CE5 /* MultipeerConnectivity.framework */,
 				3779B88719F9421800DC3CE5 /* GapDemo */,
@@ -102,11 +104,10 @@
 				37D2DDAB19FDA37F00152F25 /* ViewController.swift */,
 				371058BC19FD5434004BC50A /* MeshConnectionManager.swift */,
 				37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */,
+				377F0A041A09E42800966844 /* MotionManager.swift */,
 				3779B88A19F9421800DC3CE5 /* AppDelegate.swift */,
 				375A1A3119FDDBA200262055 /* BallScene.swift */,
-				37E2E0B91A073E7100FB9F99 /* SpatialTopologyRequest.swift */,
-				37E2E0BB1A07416600FB9F99 /* Serializeable.swift */,
-				37D7D8AB1A05D003006E2DBD /* Ball.swift */,
+				37E2E0B91A073E7100FB9F99 /* Message.swift */,
 				378BEF1619FDA2AB00C8166A /* Main.storyboard */,
 				3779B89119F9421900DC3CE5 /* Images.xcassets */,
 				3779B89319F9421900DC3CE5 /* LaunchScreen.xib */,
@@ -244,12 +245,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */,
-				37E2E0BC1A07416600FB9F99 /* Serializeable.swift in Sources */,
-				37E2E0BA1A073E7100FB9F99 /* SpatialTopologyRequest.swift in Sources */,
+				377F0A051A09E42800966844 /* MotionManager.swift in Sources */,
+				37E2E0BA1A073E7100FB9F99 /* Message.swift in Sources */,
 				37E2E0B81A06F41200FB9F99 /* SpatialOrderManager.swift in Sources */,
 				37D2DDAC19FDA37F00152F25 /* ViewController.swift in Sources */,
 				371058BD19FD5434004BC50A /* MeshConnectionManager.swift in Sources */,
-				37D7D8AC1A05D003006E2DBD /* Ball.swift in Sources */,
 				375A1A3219FDDBA200262055 /* BallScene.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

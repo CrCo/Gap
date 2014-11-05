@@ -9,12 +9,27 @@
 import MultipeerConnectivity
 
 protocol MeshConnectionManagerDelegate : NSObjectProtocol {
-    func peer(peer: MCPeerID, sentMessage: Serializeable)
+    func peer(peer: MCPeerID, sentMessage: AnyObject)
     func peerDidConnect(peer: MCPeerID)
     func peerDidDisconnect(peer: MCPeerID)
 }
 
+enum OperationMode {
+    case Broadcaster
+    case Listener
+}
+
 class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate, MCSessionDelegate  {
+    
+    var mode: OperationMode {
+        get {
+            if NSUserDefaults.standardUserDefaults().boolForKey("role") {
+                return .Listener
+            } else {
+                return .Broadcaster
+            }
+        }
+    }
     
     weak var delegate:  MeshConnectionManagerDelegate!
     
@@ -34,18 +49,15 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         browser.delegate = self
         advertiser.delegate = self
         session.delegate = self
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "shouldResetOperatingMode", name: NSUserDefaultsDidChangeNotification, object: nil)
+        
+        shouldResetOperatingMode()
     }
     
     //MARK: utility
     
-    func invitePeer(peerID: MCPeerID) {
-        NSLog("👉 Invite \(peerID.displayName)")
-        browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
-    }
-    
-    //MARK: Public members
-    
-    func browseAgain(mode: OperationMode) {
+    func shouldResetOperatingMode() {
         switch mode {
         case .Listener:
             browser.stopBrowsingForPeers()
@@ -60,22 +72,20 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         }
     }
     
-    func sendMessage(message: Serializeable, toPeers peers: [MCPeerID], error: NSErrorPointer) {
-        var dictionary = message.toJSON()
-        let type = _stdlib_getTypeName(message)
-        
-        dictionary["_type"] = type
-        
+    func invitePeer(peerID: MCPeerID) {
+        NSLog("👉 Invite \(peerID.displayName)")
+        browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
+    }
+    
+    //MARK: Public members
+    
+    func sendMessage(message: AnyObject, toPeers peers: [MCPeerID], error: NSErrorPointer) {
         var err: NSError?
-        let parsedData = NSJSONSerialization.dataWithJSONObject(dictionary, options: nil, error: &err)
-        if let e = err {
+        let data = NSKeyedArchiver.archivedDataWithRootObject(message)
+
+        session.sendData(data, toPeers: peers, withMode: MCSessionSendDataMode.Reliable, error: &err)
+        if err != nil {
             error.memory = err
-        } else {
-            NSLog("Sending message of type \(type)")
-            session.sendData(parsedData!, toPeers: peers, withMode: MCSessionSendDataMode.Reliable, error: &err)
-            if err != nil {
-                error.memory = err
-            }
         }
     }
     
@@ -140,9 +150,9 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         case .NotConnected:
             NSLog("💔 \(peerID.displayName)")
             
+            shouldResetOperatingMode()
+            
             delegate.peerDidDisconnect(peerID)
-
-            //TODO: need to restart listening if peers are connected
         case .Connecting:
             NSLog("💗")
         }
@@ -150,24 +160,12 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     func session(session: MCSession!, didReceiveData data: NSData!, fromPeer peerID: MCPeerID!) {
         
-        var err: NSError?
-        let parsedData = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &err) as [String:AnyObject]
-        if let e = err {
-            let str = NSString(data: data, encoding: NSUTF8StringEncoding)
-            NSException(name: "Serialization Error", reason: "Can't serialize \(str)", userInfo: nil).raise()
-        }
+        let obj: AnyObject? = NSKeyedUnarchiver.unarchiveObjectWithData(data)
         
-        let type = parsedData["_type"] as String
-        
-        NSLog("Receiving message of type \(type): \(parsedData.description)")
-
-        switch type {
-        case _stdlib_getTypeName(Ball):
-            delegate.peer(peerID, sentMessage:Ball(fromJSON: parsedData))
-        case _stdlib_getTypeName(SpatialTopologyResponse):
-            delegate.peer(peerID, sentMessage:SpatialTopologyResponse(fromJSON: parsedData))
-        default:
-            break //fatalError("The message type is unexpected: \(type)")
+        if let o: AnyObject = obj {
+            delegate.peer(peerID, sentMessage:o)
+        } else {
+            NSLog("Object wasn't deserialized properly")
         }
     }
     
