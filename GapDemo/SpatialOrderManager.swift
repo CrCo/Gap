@@ -51,15 +51,17 @@ class SpatialOrderManager: NSObject {
     func addInference(inference: RelativeTopologyAssertionRepresentation) {
         let left = inference.leftHandCandidate, right = inference.rightHandCandidate
         
-        let leftIndex = find(order, left), rightIndex = find(order, right)
+        var indices = (left: find(order, left), right: find(order, right))
         
-        if leftIndex != nil && rightIndex != nil {
-            fatalError("Both already have inferred locations -- not possible")
+        if indices.left != nil && indices.right != nil {
+            order.removeAtIndex(indices.left!)
+            order.removeAtIndex(indices.right!)
+            indices = (left: nil, right: nil)
         }
         
-        if let ri = rightIndex {
+        if let ri = indices.right {
             order.insert(left, atIndex: ri)
-        } else if let li = leftIndex {
+        } else if let li = indices.left {
             order.insert(right, atIndex: li + 1)
         } else {
             order.append(left)

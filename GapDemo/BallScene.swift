@@ -144,7 +144,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     override func didMoveToView(view: SKView) {
         for i in 1...2 {
-            self.addNode(generateRandomBall())
+            _addNode(generateRandomBall())
         }
     }
     
@@ -156,7 +156,20 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     }
     
     func addNode(ball: BallTransferRepresentation) {
+        var positionX: CGFloat
         
+        if ball.velocity.dx < 0 {
+            //Moving left
+            positionX = self.size.width + 30
+        } else {
+            //Moving right
+            positionX = -30
+        }
+        
+        _addNode(BallTransferRepresentation(type: ball.type, position: CGPoint(x:positionX, y:ball.position.y), velocity: ball.velocity))
+    }
+    
+    func _addNode(ball: BallTransferRepresentation) {
         var color: SKColor
         switch ball.type {
         case .Green: color = SKColor.greenColor()
@@ -167,18 +180,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         var node = SKShapeNode(circleOfRadius: ballSize)
         node.strokeColor = SKColor.clearColor()
         node.fillColor = color
-        
-        var position = ball.position
-        
-        if ball.velocity.dx < 0 {
-            //Moving left
-            position.x = self.frame.width + 30
-        } else {
-            //Moving right
-            position.x = -30
-        }
-        
-        node.position = position
+        node.position = ball.position
         node.name = "ball"
         
         let body = SKPhysicsBody(circleOfRadius: ballSize)
@@ -191,6 +193,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         self.addChild(node)
         
         body.velocity = ball.velocity
+
     }
     
     func setPhysicsBodyOpenings(left:Bool, right:Bool) {

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		371058BD19FD5434004BC50A /* MeshConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BC19FD5434004BC50A /* MeshConnectionManager.swift */; };
 		371F630319FC151C00B56D02 /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 371F630219FC151C00B56D02 /* SpriteKit.framework */; };
+		375511B41A0A895D00D9B1E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 375511B31A0A895D00D9B1E4 /* Main.storyboard */; };
 		375A1A3219FDDBA200262055 /* BallScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375A1A3119FDDBA200262055 /* BallScene.swift */; };
 		3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3779B88A19F9421800DC3CE5 /* AppDelegate.swift */; };
 		3779B89219F9421900DC3CE5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3779B89119F9421900DC3CE5 /* Images.xcassets */; };
@@ -18,7 +19,6 @@
 		377F0A031A09B49E00966844 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 377F0A021A09B49E00966844 /* CoreMotion.framework */; };
 		377F0A051A09E42800966844 /* MotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F0A041A09E42800966844 /* MotionManager.swift */; };
 		37813B4E19FA905900DD5CDE /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 37813B4D19FA905900DD5CDE /* Settings.bundle */; };
-		378BEF1719FDA2AB00C8166A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 378BEF1619FDA2AB00C8166A /* Main.storyboard */; };
 		37D2DDAC19FDA37F00152F25 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D2DDAB19FDA37F00152F25 /* ViewController.swift */; };
 		37E2E0B81A06F41200FB9F99 /* SpatialOrderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */; };
 		37E2E0BA1A073E7100FB9F99 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E2E0B91A073E7100FB9F99 /* Message.swift */; };
@@ -37,6 +37,7 @@
 /* Begin PBXFileReference section */
 		371058BC19FD5434004BC50A /* MeshConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeshConnectionManager.swift; sourceTree = "<group>"; };
 		371F630219FC151C00B56D02 /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
+		375511B31A0A895D00D9B1E4 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		375A1A3119FDDBA200262055 /* BallScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallScene.swift; sourceTree = "<group>"; };
 		3779B88519F9421800DC3CE5 /* GapDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GapDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3779B88919F9421800DC3CE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -50,7 +51,6 @@
 		377F0A021A09B49E00966844 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		377F0A041A09E42800966844 /* MotionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionManager.swift; sourceTree = "<group>"; };
 		37813B4D19FA905900DD5CDE /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
-		378BEF1619FDA2AB00C8166A /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		37D2DDAB19FDA37F00152F25 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpatialOrderManager.swift; sourceTree = "<group>"; };
 		37E2E0B91A073E7100FB9F99 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
@@ -101,6 +101,7 @@
 		3779B88719F9421800DC3CE5 /* GapDemo */ = {
 			isa = PBXGroup;
 			children = (
+				375511B31A0A895D00D9B1E4 /* Main.storyboard */,
 				37D2DDAB19FDA37F00152F25 /* ViewController.swift */,
 				371058BC19FD5434004BC50A /* MeshConnectionManager.swift */,
 				37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */,
@@ -108,7 +109,6 @@
 				3779B88A19F9421800DC3CE5 /* AppDelegate.swift */,
 				375A1A3119FDDBA200262055 /* BallScene.swift */,
 				37E2E0B91A073E7100FB9F99 /* Message.swift */,
-				378BEF1619FDA2AB00C8166A /* Main.storyboard */,
 				3779B89119F9421900DC3CE5 /* Images.xcassets */,
 				3779B89319F9421900DC3CE5 /* LaunchScreen.xib */,
 				3779B88819F9421800DC3CE5 /* Supporting Files */,
@@ -226,7 +226,7 @@
 				37813B4E19FA905900DD5CDE /* Settings.bundle in Resources */,
 				3779B89519F9421900DC3CE5 /* LaunchScreen.xib in Resources */,
 				3779B89219F9421900DC3CE5 /* Images.xcassets in Resources */,
-				378BEF1719FDA2AB00C8166A /* Main.storyboard in Resources */,
+				375511B41A0A895D00D9B1E4 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,7 +10,7 @@ import UIKit
 import MultipeerConnectivity
 import SpriteKit
 
-class ViewController: UIViewController, MeshConnectionManagerDelegate, BallSceneDelegate, MotionManagerDelegate {
+class ViewController: UIViewController, MeshConnectionManagerDelegate, BallSceneDelegate, MotionManagerDelegate, UIGestureRecognizerDelegate {
     
     var me: MCPeerID {
         get {
@@ -49,10 +49,16 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     @IBOutlet weak var spriteView: SKView!
     
+    func didSwipe() {
+        NSLog("sdflkj")
+    }
     //MARK: View delegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let gestureRecognizer = UISwipeGestureRecognizer(target: self, action: "didSwipe")
+        spriteView.addGestureRecognizer(gestureRecognizer)
         
         scene = BallScene(type: .Green)
         let size = self.view.frame.size
