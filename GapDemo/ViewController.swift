@@ -26,6 +26,8 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         }
     }
     
+    var motionHandlingQueue = NSOperationQueue()
+    
     var receptiveToContact: Bool = false
     
     var meshConnectionManager: MeshConnectionManager!
@@ -41,7 +43,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
 
         spatialOrderManager = SpatialOrderManager(peerID: me)
         
-        motionManager = MotionManager()
+        motionManager = MotionManager(queue: motionHandlingQueue)
         motionManager.delegate = self
     }
     
@@ -49,6 +51,10 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     @IBOutlet weak var spriteView: SKView!
     
+    @IBAction func resetTopography(sender: AnyObject) {
+        self.spatialOrderManager.reset()
+        updateAndShareGlobalTopography(true)
+    }
     func didSwipe() {
         NSLog("sdflkj")
     }
@@ -56,7 +62,6 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         let gestureRecognizer = UISwipeGestureRecognizer(target: self, action: "didSwipe")
         spriteView.addGestureRecognizer(gestureRecognizer)
         
@@ -78,9 +83,6 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         
     //MARK: utilities
     
-    func updateSceneAfterPeerChanges() {
-    }
-    
     func peerForSide(side: Side) -> MCPeerID? {
         switch side {
         case .Left:
@@ -89,6 +91,36 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
             return spatialOrderManager.rightDevice
         }
     }
+    
+    func considerWhetherToDisableMotion() {
+        if spatialOrderManager.order.count == meshConnectionManager.session.connectedPeers.count + 1 {
+            //This means all peers have a place in the world
+            motionManager.stopMotionUpdates()
+        } else {
+            motionManager.startMotionUpdates()
+        }
+    }
+    
+    func updateAndShareGlobalTopography(shouldBroadcast: Bool) {
+        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+            self.scene.setPhysicsBodyOpenings(self.spatialOrderManager.leftDevice != nil, right: self.spatialOrderManager.rightDevice != nil)
+        })
+        
+        let text = "|".join(spatialOrderManager.order.map { $0.displayName })
+        
+        if shouldBroadcast {
+            let topoRep = GlobalTopologyDefinitionRepresentation(topology: spatialOrderManager.order)
+            var err: NSError?
+            self.meshConnectionManager.sendMessage(topoRep, toPeers: meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
+            if let e = err {
+                NSLog("❌🎵🌏: \(text)")
+            } else {
+                NSLog("🎵🌏: \(text)")
+            }
+        }
+        
+        considerWhetherToDisableMotion()
+    }
 
     //MARK: Peer delegates
     func peer(peer: MCPeerID, sentMessage message: AnyObject) {
@@ -96,59 +128,60 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         case is BallTransferRepresentation:
             NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
                 let ball = message as BallTransferRepresentation
-                
                 NSLog("🎾 from \(ball.position)")
                 self.scene.addNode(ball)
             }
         case is RelativeTopologyAssertionRepresentation:
-            let topo = message as RelativeTopologyAssertionRepresentation
-            
-            spatialOrderManager.addInference(topo)
-            scene.setPhysicsBodyOpenings(spatialOrderManager.leftDevice != nil, right: spatialOrderManager.rightDevice != nil)
-            
-            if meshConnectionManager.mode == .Listener {
-                let topoRep = GlobalTopologyDefinitionRepresentation(topology: spatialOrderManager.order)
-                var err: NSError?
-                self.meshConnectionManager.sendMessage(topoRep, toPeers: meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
-                if let e = err {
-                    NSLog("Couldn't send the mesh message")
-                } else {
-                    NSLog("Got some more information, now forwarding it to all")
-                }
-            }
-        case is GlobalTopologyDefinitionRepresentation:
-            NSLog("World is fully specified")
+            //Only the hub gets these messages
+            spatialOrderManager.addInference(message as RelativeTopologyAssertionRepresentation)
+            updateAndShareGlobalTopography(true)
 
-            let topo = message as GlobalTopologyDefinitionRepresentation
+        case is GlobalTopologyDefinitionRepresentation:
             
-            spatialOrderManager.order = topo.topology
-            NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                self.scene.setPhysicsBodyOpenings(self.spatialOrderManager.leftDevice != nil, right: self.spatialOrderManager.rightDevice != nil)
-            })
+            spatialOrderManager.order = (message as GlobalTopologyDefinitionRepresentation).topology
+            updateAndShareGlobalTopography(false)
+            
         case is ContactEvent:
-            if receptiveToContact {
-                
+            //Looking to slow down the handling since it's common to get notified of another device making
+            //contact even before handling our own
+            motionHandlingQueue.addOperationWithBlock({ () -> Void in
                 let type = (message as ContactEvent).contactSide!
-                
-                var topoAssertion: RelativeTopologyAssertionRepresentation
-                
-                switch type {
-                case .Left:
-                    topoAssertion = RelativeTopologyAssertionRepresentation(leftHandCandidate: me, rightHandCandidate: peer)
-                case .Right:
-                    topoAssertion = RelativeTopologyAssertionRepresentation(leftHandCandidate: peer, rightHandCandidate: me)
-                }
-                
-                if let hub = meshConnectionManager.hubPeer {
-                    var err: NSError?
-                    self.meshConnectionManager.sendMessage(topoAssertion, toPeers: [hub], error: &err)
-                    if let e = err {
-                        NSLog("Couldn't send the contact event message")
+
+                if self.receptiveToContact {
+
+                    switch type {
+                    case .Left: NSLog("👂💥👈")
+                    case .Right:  NSLog("👂💥👉")
+                    }
+
+                    var topoAssertion: RelativeTopologyAssertionRepresentation
+                    
+                    switch type {
+                    case .Left:
+                        topoAssertion = RelativeTopologyAssertionRepresentation(leftHandCandidate: self.me, rightHandCandidate: peer)
+                    case .Right:
+                        topoAssertion = RelativeTopologyAssertionRepresentation(leftHandCandidate: peer, rightHandCandidate: self.me)
+                    }
+                    
+                    if let hub = self.meshConnectionManager.hubPeer {
+                        var err: NSError?
+                        self.meshConnectionManager.sendMessage(topoAssertion, toPeers: [hub], error: &err)
+                        
+                        if let e = err {
+                            NSLog("Couldn't send the contact event message")
+                        } else {
+                            NSLog("🎵 hub I'm on \(type.rawValue)")
+                        }
+                    } else {
+                        self.peer(self.me, sentMessage: topoAssertion)
                     }
                 } else {
-                    self.peer(me, sentMessage: topoAssertion)
+                    switch type {
+                    case .Left: NSLog("❌👂💥👈")
+                    case .Right:  NSLog("❌👂💥👉")
+                    }
                 }
-            }
+            })
         default:
             break
         }
@@ -177,31 +210,43 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
                 NSLog("🎾 to \(side.rawValue) \(ball.position)")
             }
         } else {
-            fatalError("This shouldn't happen; means the scene is out of date with spatial topology")
+            //Means the scene is out of date with spatial topology
+            NSLog("❌🎾 to \(side.rawValue) \(ball.position)")
         }
     }
     
     //MARK: Motion manager delegate
     
     func motionManager(manager: MotionManager, didDetectContact contactEvent: ContactEvent) {
-        NSLog("Motion was \(contactEvent.contactType.rawValue) on side \(contactEvent.contactSide?.rawValue)")
-
-        switch contactEvent.contactType {
-        case .Passive:
-            self.receptiveToContact = true
-            NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "_resetContactReception", userInfo: nil, repeats: false)
-        case .Initiation:
-            var err: NSError?
-            meshConnectionManager.sendMessage(contactEvent, toPeers: meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
-            if let e = err {
-                NSLog("An error occured sending contact information")
-            } else {
-                NSLog("⚡️ \(contactEvent.contactType) \(contactEvent.contactSide?.rawValue)")
+        
+        let me = self
+        
+        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+            switch contactEvent.contactType {
+            case .Passive:
+                self.receptiveToContact = true
+                
+                NSTimer.scheduledTimerWithTimeInterval(0.4, target: me, selector: Selector("_resetContactReception"), userInfo: nil, repeats: false)
+            case .Initiation:
+                //We need to slow down sending this. That's why we'll add it to the main queue for delivery
+                
+                var err: NSError?
+                
+                self.meshConnectionManager.sendMessage(contactEvent, toPeers: self.meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
+                if let e = err {
+                    NSLog("An error occured sending contact information")
+                } else {
+                    switch contactEvent.contactSide! {
+                    case .Left: NSLog("🎵💥👈")
+                    case .Right:  NSLog("🎵💥👉")
+                    }
+                }
             }
         }
     }
     
     func _resetContactReception() {
+        NSLog("💥👊")
         self.receptiveToContact = false
     }
 }

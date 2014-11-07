@@ -14,55 +14,113 @@ protocol MotionManagerDelegate: NSObjectProtocol {
 
 class MotionManager: NSObject {
     
-    var _log = [Double]()
     let motionManager = CMMotionManager()
-    
+    var motionHandlingQueue: NSOperationQueue
     weak var delegate: MotionManagerDelegate!
     
-    override init() {
+    init(queue: NSOperationQueue) {
+        self.motionHandlingQueue = queue
         super.init()
         
-        motionManager.accelerometerUpdateInterval = 0.002
+        // 1/100 of second is pretty much the best we can do for most devices
+        motionManager.accelerometerUpdateInterval = 0.01
     }
     
     func startMotionUpdates() {
-        motionManager.startAccelerometerUpdatesToQueue(NSOperationQueue(), withHandler: { (data, err) -> Void in
-            
-            //There are no values, but we may need to start the clock
-            if abs(data.acceleration.x) > 0.01 {
-                self._log.append(data.acceleration.x)
-            } else if self._log.count > 0 {
-                if self._log.reduce(false, combine: { $0 || $1 > 0.2 }) {
-                    self.performAnalysis(self._log)
-                }
-                self._log.removeAll(keepCapacity: true)
-            }
-        })
+        NSLog("💥👂 STARTED")
+        motionManager.startAccelerometerUpdatesToQueue(motionHandlingQueue, withHandler: accelerometerUpdateHandler())
     }
     
     func stopMotionUpdates() {
+        NSLog("💥👂 STOPPED")
+
         motionManager.stopAccelerometerUpdates()
     }
     
-    func performAnalysis(log: [Double]) {
-        var behaviour: String
+    func accelerometerUpdateHandler() -> (data: CMAccelerometerData!, err: NSError!) -> Void {
+        let idleThreshold = 0.025
+        let boundarySize = 50
         
-        if log.count > 10 {
-            var sum: Double = 0
-            for i in 0...5 {
-                sum += log[i]
-            }
-            
-            var direction: Side
-            if sum > 0 {
-                direction = .Left
-            } else {
-                direction = .Right
-            }
-            delegate.motionManager(self, didDetectContact: ContactEvent(initiationWithContactDirection: direction))
+        var log = [Double]()
+        
+        var samplingCountdown: Int = 0
+        var lastNonThreshold: Double = 0
+        var lastNonThresholdTimestamp: NSTimeInterval = 0
 
-        } else {
-            delegate.motionManager(self, didDetectContact: ContactEvent())
+        return { (data: CMAccelerometerData!, err: NSError!) -> Void in
+            
+            if abs(data.acceleration.x) > idleThreshold {
+                //Some event is happening
+                if log.count == 0 {
+                    //Add context
+                    log.append(lastNonThreshold)
+                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                        let diff = data.timestamp - lastNonThresholdTimestamp
+                        NSLog("💥👀")
+                    })
+                }
+                
+                log.append(data.acceleration.x)
+                samplingCountdown = boundarySize
+            } else {
+                //Below threshold
+                if samplingCountdown > 0 {
+                    //If we haven't already
+                    log.append(data.acceleration.x)
+                    samplingCountdown--
+                } else if log.count > 0 {
+                    //Counted down and we've captured results
+                    
+                    self.motionManager.stopAccelerometerUpdates()
+                    var arrayCopy: Slice<Double>
+                    
+                    if log.count >= boundarySize {
+                        arrayCopy = log[0..<log.count - boundarySize]
+                    } else {
+                        arrayCopy = log[0..<log.count]
+                    }
+                    
+                    self.motionHandlingQueue.addOperationWithBlock({ () -> Void in
+                        self.performAnalysis(arrayCopy)
+                        self.startMotionUpdates()
+                    })
+                } else {
+                    lastNonThreshold = data.acceleration.x
+                    lastNonThresholdTimestamp = data.timestamp
+                }
+            }
         }
+    }
+
+    
+    func performAnalysis(log: Slice<Double>) {
+
+        let eventThreshold = 0.3
+        let powerThreshold = 1.0
+        
+        var sum: Double = 0
+        for i in 0..<log.count {
+            let val = log[i]
+            if abs(val) < eventThreshold {
+                sum += val
+            } else {
+                var event: ContactEvent
+                if abs(sum) > powerThreshold {
+                    if sum > 0 {
+                        NSLog("💥👈")
+                        event = ContactEvent(initiationWithContactDirection: .Left)
+                    } else {
+                        NSLog("💥👉")
+                        event = ContactEvent(initiationWithContactDirection: .Right)
+                    }
+                } else {
+                    NSLog("💥✋")
+                    event = ContactEvent()
+                }
+                self.delegate.motionManager(self, didDetectContact: event)
+                return
+            }
+        }
+        NSLog("💥❌")
     }
 }

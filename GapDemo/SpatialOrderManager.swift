@@ -47,6 +47,10 @@ class SpatialOrderManager: NSObject {
             order.removeAtIndex(index)
         }
     }
+    
+    func reset() {
+        self.order.removeAll(keepCapacity: true)
+    }
 
     func addInference(inference: RelativeTopologyAssertionRepresentation) {
         let left = inference.leftHandCandidate, right = inference.rightHandCandidate
@@ -54,8 +58,13 @@ class SpatialOrderManager: NSObject {
         var indices = (left: find(order, left), right: find(order, right))
         
         if indices.left != nil && indices.right != nil {
-            order.removeAtIndex(indices.left!)
-            order.removeAtIndex(indices.right!)
+            if indices.left > indices.right {
+                order.removeAtIndex(indices.left!)
+                order.removeAtIndex(indices.right!)
+            } else {
+                order.removeAtIndex(indices.right!)
+                order.removeAtIndex(indices.left!)
+            }
             indices = (left: nil, right: nil)
         }
         

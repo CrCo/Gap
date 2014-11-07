@@ -197,7 +197,8 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     }
     
     func setPhysicsBodyOpenings(left:Bool, right:Bool) {
-        NSLog("open left \(left) or right \(right)")
+        let closedIcon = "🚪", openIcon = ""
+        NSLog("\(left ? openIcon : closedIcon)🌛🌜\(right ? openIcon : closedIcon)")
         if let leftGate = self.gates?.left {
             self.setGate(leftGate, toOpen: left)
         }
