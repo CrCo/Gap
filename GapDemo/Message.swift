@@ -53,10 +53,10 @@ class RelativeTopologyAssertionRepresentation: NSObject, NSCoding {
     }
 }
 
-enum BallType: String {
-    case Red = "red"
-    case Blue = "blue"
-    case Green = "green"
+enum BallType: Int {
+    case Red = 0
+    case Blue = 1
+    case Green = 2
 }
 
 class BallTransferRepresentation: NSObject, NSCoding {
@@ -71,7 +71,7 @@ class BallTransferRepresentation: NSObject, NSCoding {
     }
     
     required init(coder aDecoder: NSCoder) {
-        type = BallType(rawValue: aDecoder.decodeObjectForKey("type") as String)!
+        type = BallType(rawValue: aDecoder.decodeObjectForKey("type") as Int)!
         position = aDecoder.decodeCGPointForKey("position")
         velocity = aDecoder.decodeCGVectorForKey("velocity")
     }
@@ -114,6 +114,19 @@ class ContactEvent: NSObject, NSCoding {
         aCoder.encodeObject(contactType.rawValue, forKey: "type")
         if let side = contactSide {
             aCoder.encodeObject(side.rawValue, forKey: "side")
+        }
+    }
+    
+    override var description: String {
+        get {
+            if self.contactType == .Initiation {
+                switch self.contactSide! {
+                case .Left: return "💥👈"
+                case .Right:  return "💥👉"
+                }
+            } else {
+                return "💥✋"
+            }
         }
     }
 }

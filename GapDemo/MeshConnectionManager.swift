@@ -12,6 +12,7 @@ protocol MeshConnectionManagerDelegate : NSObjectProtocol {
     func peer(peer: MCPeerID, sentMessage: AnyObject)
     func peerDidConnect(peer: MCPeerID)
     func peerDidDisconnect(peer: MCPeerID)
+    func peerIsConnecting(peer: MCPeerID)
 }
 
 enum OperationMode {
@@ -72,11 +73,6 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         }
     }
     
-    func invitePeer(peerID: MCPeerID) {
-        NSLog("👉 Invite \(peerID.displayName)")
-        browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
-    }
-    
     //MARK: Public members
     
     func sendMessage(message: AnyObject, toPeers peers: [MCPeerID], error: NSErrorPointer) {
@@ -93,15 +89,10 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
         
-        if let peers = session.connectedPeers as? [MCPeerID] {
-            if let result = find(peers, peerID) {
-                NSLog("❓ Won't invite \(peerID.displayName) since it is already connected")
-            } else {
-                invitePeer(peerID)
-            }
-        } else {
-            invitePeer(peerID)
-        }
+        NSLog("👉 Invite \(peerID.displayName)")
+        
+        browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
+        delegate.peerIsConnecting(peerID)
     }
 
     func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
@@ -120,21 +111,11 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
         
-        if let peers = session.connectedPeers as? [MCPeerID] {
-            if let result = find(peers, peerID) {
-                //sessionManager.reset()
-                NSLog("❓ superflous invitation from \(peerID.displayName)")
-                invitationHandler(false, nil)
-            } else {
-                NSLog("👍 (no matching connections) \(peerID.displayName)")
-                hubPeer = peerID
-                invitationHandler(true, session)
-            }
-        } else {
-            NSLog("👍 (no connections) \(peerID.displayName)")
-            hubPeer = peerID
-            invitationHandler(true, session)
-        }
+        NSLog("👍 \(peerID.displayName)")
+
+        hubPeer = peerID
+        invitationHandler(true, session)
+        delegate.peerIsConnecting(peerID)
     }
     
     //MARK: Session Delegate

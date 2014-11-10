@@ -24,9 +24,12 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     weak var transferDelegate: BallSceneDelegate!
     
-    var gates: (top: SKNode, right: SKNode, bottom: SKNode, left:SKNode)?
     var finger: SKFieldNode!
-    
+    var openings: (left:Bool, right: Bool) = (left:false, right: false) {
+        didSet {
+            self.didChangeSize(self.size)
+        }
+    }
     var aspectRatio: CGFloat? {
         didSet {
             if let a = aspectRatio {
@@ -67,6 +70,13 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func changeBallType(type: BallType) {
+        enumerateChildNodesWithName("ball") { (node, stop) -> Void in
+            let n = node as SKShapeNode
+            n.fillColor = self.colorForType(type)
+        }
+    }
+    
     var sortFieldActive: Bool = false {
         didSet {
             if sortFieldActive {
@@ -80,66 +90,59 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    override func didChangeSize(oldSize: CGSize) {
-        var openGates = (top:false, left: false, bottom: false, right:false)
-        
-        if let g = gates {
-            openGates.left = g.left.parent == nil
-            openGates.right = g.right.parent == nil
-            openGates.top = g.top.parent == nil
-            openGates.bottom = g.bottom.parent == nil
-            if !openGates.left { g.left.removeFromParent() }
-            if !openGates.right { g.right.removeFromParent() }
-            if !openGates.top { g.top.removeFromParent() }
-            if !openGates.bottom { g.bottom.removeFromParent() }
-        }
-        
-        func createBoundaryBetween(pointA: CGPoint, andPoint pointB: CGPoint) -> SKNode {
-            var points = [pointA, pointB]
-            let node = SKShapeNode(points: &points, count: 2)
-            node.name = "wall"
-            node.strokeColor = SKColor.redColor()
-            let physicsBody = SKPhysicsBody(edgeFromPoint: pointA, toPoint: pointB)
-            physicsBody.dynamic = false
-            node.physicsBody = physicsBody
-            return node
-        }
-        
-        gates = (
-            top: createBoundaryBetween(
-                CGPoint(x: -ballSize, y: self.size.height),
-                andPoint: CGPoint(x: self.size.width + ballSize, y: self.size.height)
-            ),
-            right: createBoundaryBetween(
-                CGPoint(x: self.size.width, y: self.size.height + ballSize),
-                andPoint: CGPoint(x: self.frame.width, y: -ballSize)
-            ),
-            bottom: createBoundaryBetween(
-                CGPoint(x: -ballSize, y: 0),
-                andPoint: CGPoint(x: self.size.width + ballSize, y: 0)
-            ),
-            left: createBoundaryBetween(
-                CGPoint(x: 0, y: self.size.height + ballSize),
-                andPoint: CGPoint(x: 0, y: -ballSize)
-            )
-        )
-        
-        if let g = gates {
-            if !openGates.left { self.addChild(g.left) }
-            if !openGates.right { self.addChild(g.right) }
-            if !openGates.top { self.addChild(g.top) }
-            if !openGates.bottom { self.addChild(g.bottom) }
-        }
+    func createVerticalBoundary() -> SKNode {
+        let pointA = CGPoint(x: 0, y: -ballSize)
+        let pointB = CGPoint(x: 0, y: self.size.height + ballSize)
+        var points = [pointA, pointB]
+        let node = SKShapeNode(points: &points, count: 2)
+        node.strokeColor = SKColor.redColor()
+        let physicsBody = SKPhysicsBody(edgeFromPoint: pointA, toPoint: pointB)
+        physicsBody.dynamic = false
+        node.physicsBody = physicsBody
+        return node
     }
     
-    func setGate(node: SKNode, toOpen open: Bool ) {
-        if (open) {
-            node.runAction(SKAction.removeFromParent())
-        } else {
-            if node.parent == nil {
-                self.addChild(node)
-            }
+    func createHorizontalBoundary() -> SKNode {
+        let pointA = CGPoint(x: -ballSize, y: 0)
+        let pointB = CGPoint(x: self.size.height + ballSize, y: 0)
+        var points = [pointA, pointB]
+        let node = SKShapeNode(points: &points, count: 2)
+        node.strokeColor = SKColor.redColor()
+        let physicsBody = SKPhysicsBody(edgeFromPoint: pointA, toPoint: pointB)
+        physicsBody.dynamic = false
+        node.physicsBody = physicsBody
+        return node
+    }
+
+    override func didChangeSize(oldSize: CGSize) {
+        
+        let children = [self.childNodeWithName("left"), self.childNodeWithName("right"), self.childNodeWithName("top"), childNodeWithName("bottom")]
+        
+        self.removeChildrenInArray(children.filter { return $0 != nil } .map { $0! })
+        
+        if !openings.left {
+            let left = createVerticalBoundary()
+            left.position = CGPoint(x: 0, y: 0)
+            left.name = "left"
+            self.addChild(left)
         }
+        
+        if !openings.right {
+            let right = createVerticalBoundary()
+            right.position = CGPoint(x: self.size.width, y: 0)
+            right.name = "right"
+            self.addChild(right)
+        }
+            
+        let top = createHorizontalBoundary()
+        top.position = CGPoint(x: 0, y: 0)
+        top.name = "top"
+        self.addChild(top)
+
+        let bottom = createHorizontalBoundary()
+        bottom.position = CGPoint(x: 0, y: self.size.height)
+        bottom.name = "bottom"
+        self.addChild(bottom)
     }
     
     override func didMoveToView(view: SKView) {
@@ -169,13 +172,16 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         _addNode(BallTransferRepresentation(type: ball.type, position: CGPoint(x:positionX, y:ball.position.y), velocity: ball.velocity))
     }
     
-    func _addNode(ball: BallTransferRepresentation) {
-        var color: SKColor
-        switch ball.type {
-        case .Green: color = SKColor.greenColor()
-        case .Blue: color = SKColor.blueColor()
-        case .Red: color = SKColor.redColor()
+    func colorForType(type: BallType) -> SKColor {
+        switch type {
+        case .Green: return SKColor.greenColor()
+        case .Blue: return SKColor.blueColor()
+        case .Red: return SKColor.redColor()
         }
+    }
+    
+    func _addNode(ball: BallTransferRepresentation) {
+        var color: SKColor = colorForType(ball.type)
         
         var node = SKShapeNode(circleOfRadius: ballSize)
         node.strokeColor = SKColor.clearColor()
@@ -196,30 +202,19 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
 
     }
     
-    func setPhysicsBodyOpenings(left:Bool, right:Bool) {
-        let closedIcon = "🚪", openIcon = ""
-        NSLog("\(left ? openIcon : closedIcon)🌛🌜\(right ? openIcon : closedIcon)")
-        if let leftGate = self.gates?.left {
-            self.setGate(leftGate, toOpen: left)
-        }
-        if let rightGate = self.gates?.right {
-            self.setGate(rightGate, toOpen: right)
-        }
-    }
-    
     override func update(currentTime: NSTimeInterval) {
         
         self.enumerateChildNodesWithName("ball") { (node, shouldStop) -> Void in
             if node.position.x > self.frame.width + ballSize {
-                if  self.gates?.right.parent == nil {
+                if  self.openings.right {
                     //send on its way
                     self.moveNode(node, toSide: .Right)
                 } else {
                     //this guy is trapped on the wrong side of the wall
                     self.resetBall(node, attemptedSide: .Right)
                 }
-            } else if node.position.x < -ballSize && self.gates?.left.parent == nil {
-                if  self.gates?.left.parent == nil {
+            } else if node.position.x < -ballSize {
+                if  self.openings.left {
                     //send on its way
                     self.moveNode(node, toSide: .Left)
                 } else {

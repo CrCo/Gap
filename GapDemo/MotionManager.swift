@@ -80,10 +80,8 @@ class MotionManager: NSObject {
                         arrayCopy = log[0..<log.count]
                     }
                     
-                    self.motionHandlingQueue.addOperationWithBlock({ () -> Void in
-                        self.performAnalysis(arrayCopy)
-                        self.startMotionUpdates()
-                    })
+                    self.performAnalysis(arrayCopy)
+                    self.motionManager.startAccelerometerUpdatesToQueue(self.motionHandlingQueue, withHandler: self.accelerometerUpdateHandler())
                 } else {
                     lastNonThreshold = data.acceleration.x
                     lastNonThresholdTimestamp = data.timestamp
