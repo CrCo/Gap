@@ -51,12 +51,18 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         advertiser.delegate = self
         session.delegate = self
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "shouldResetOperatingMode", name: NSUserDefaultsDidChangeNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "defaultsDidChange:", name: NSUserDefaultsDidChangeNotification, object: nil)
         
         shouldResetOperatingMode()
     }
     
     //MARK: utility
+    
+    func defaultsDidChange(notification: NSNotification) {
+        if notification.object! is Bool {
+            shouldResetOperatingMode()
+        }
+    }
     
     func shouldResetOperatingMode() {
         switch mode {
@@ -71,6 +77,10 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
             browser.stopBrowsingForPeers()
             NSLog("🎵")
         }
+    }
+
+    func disconnect() {
+        session.disconnect()
     }
     
     //MARK: Public members

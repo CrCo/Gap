@@ -38,10 +38,17 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    var type: BallType
+    var type: BallType {
+        get {
+            return BallType(rawValue: NSUserDefaults.standardUserDefaults().integerForKey("type") as Int)!
+        }
+        set {
+            NSUserDefaults.standardUserDefaults().setInteger(newValue.rawValue, forKey: "type")
+            changeBallType(newValue)
+        }
+    }
 
-    init(type: BallType) {
-        self.type = type
+    override init() {
         
         super.init(size: CGSize(width: height, height: height))
         
@@ -104,7 +111,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     func createHorizontalBoundary() -> SKNode {
         let pointA = CGPoint(x: -ballSize, y: 0)
-        let pointB = CGPoint(x: self.size.height + ballSize, y: 0)
+        let pointB = CGPoint(x: self.size.width + ballSize, y: 0)
         var points = [pointA, pointB]
         let node = SKShapeNode(points: &points, count: 2)
         node.strokeColor = SKColor.redColor()
@@ -122,30 +129,33 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         
         if !openings.left {
             let left = createVerticalBoundary()
-            left.position = CGPoint(x: 0, y: 0)
+            left.position = CGPoint(x: -1, y: 0)
             left.name = "left"
             self.addChild(left)
         }
         
         if !openings.right {
             let right = createVerticalBoundary()
-            right.position = CGPoint(x: self.size.width, y: 0)
+            right.position = CGPoint(x: self.size.width+1, y: 0)
             right.name = "right"
             self.addChild(right)
         }
             
         let top = createHorizontalBoundary()
-        top.position = CGPoint(x: 0, y: 0)
+        top.position = CGPoint(x: 0, y: -1)
         top.name = "top"
         self.addChild(top)
 
         let bottom = createHorizontalBoundary()
-        bottom.position = CGPoint(x: 0, y: self.size.height)
+        bottom.position = CGPoint(x: 0, y: self.size.height+1)
         bottom.name = "bottom"
         self.addChild(bottom)
     }
     
     override func didMoveToView(view: SKView) {
+        let panGS = UIPanGestureRecognizer(target:self, action: "didPan:")
+        view.addGestureRecognizer(panGS)
+        
         for i in 1...2 {
             _addNode(generateRandomBall())
         }
@@ -157,7 +167,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         
         return BallTransferRepresentation(type: type, position: randomPosition, velocity: randomVelocity)
     }
-    
+        
     func addNode(ball: BallTransferRepresentation) {
         var positionX: CGFloat
         
@@ -170,6 +180,27 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         }
         
         _addNode(BallTransferRepresentation(type: ball.type, position: CGPoint(x:positionX, y:ball.position.y), velocity: ball.velocity))
+    }
+    
+    func createNode(position: CGPoint) -> SKShapeNode {
+        var color: SKColor = colorForType(type)
+        
+        var node = SKShapeNode(circleOfRadius: ballSize)
+        node.strokeColor = SKColor.clearColor()
+        node.fillColor = color
+        node.position = position
+        node.name = "ball"
+        
+        let body = SKPhysicsBody(circleOfRadius: ballSize)
+        body.affectedByGravity = false
+        body.dynamic = false
+        body.friction = 0
+        body.linearDamping = 0.0
+        body.restitution = 1.0
+        
+        node.physicsBody = body
+        self.addChild(node)
+        return node
     }
     
     func colorForType(type: BallType) -> SKColor {
@@ -199,7 +230,6 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         self.addChild(node)
         
         body.velocity = ball.velocity
-
     }
     
     override func update(currentTime: NSTimeInterval) {
@@ -253,19 +283,64 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         
         node.physicsBody?.velocity.dx = -node.physicsBody!.velocity.dx
     }
+    
+    //MARK: Touch delegate
+    var swipingNode: SKShapeNode!
+    
+    func didPan(gesture: UIPanGestureRecognizer) {
+        let v = self.view!
+        
+        let _location = gesture.locationInView(v)
+        
+        let x = Double(_location.x * self.size.width / v.frame.width)
+        let y = Double((v.frame.height - _location.y) * self.size.height / v.frame.height)
+        
+        let _velocity =  gesture.velocityInView(v)
+        
+        let dx = Double(_velocity.x * self.size.width / v.frame.width)
+        let dy = Double(-_velocity.y * self.size.height / v.frame.height)
 
-    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
-        let touch = touches.anyObject() as UITouch
-        finger.position = touch.locationInNode(self)
-        self.addChild(finger)
+        
+        switch gesture.state {
+        case .Began:
+            let point = CGPoint(x:x, y:y)
+            let node = self.nodeAtPoint(point)
+            
+            if node != self {
+                node.physicsBody!.dynamic = false
+                swipingNode = node as SKShapeNode
+                //Center based on where it was grabbed
+                node.position = point
+            } else {
+                let tests = [(x, dx), (Double(self.size.width) - x, -dx), (y, dy), (Double(self.size.height) - y, -dy)]
+                if tests.filter({ $0.0 < 10 && $0.1 > 25 }).count > 0 {
+                    swipingNode = self.createNode(point)
+                }
+            }
+        case .Changed:
+            if let sn = swipingNode {
+                let location = gesture.locationInView(v)
+                
+                let yPos = (v.frame.height - location.y) * self.size.height / v.frame.height
+                let xPos = location.x * self.size.width / v.frame.width
+                sn.position = CGPoint(x: xPos, y: yPos)
+            }
+        case .Ended, .Cancelled:
+            if let sn = swipingNode {
+                let physicsBody = sn.physicsBody!
+                
+                physicsBody.dynamic = true
+                
+                let velocityPoint =  gesture.velocityInView(v)
+                let dx = velocityPoint.x * self.size.width / v.frame.width
+                let dy = -velocityPoint.y * self.size.height / v.frame.height
+                
+                physicsBody.velocity = CGVector(dx: dx, dy: dy)
+            }
+            swipingNode = nil
+        default:
+            break
+        }
     }
-    
-    override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
-        let touch = touches.anyObject() as UITouch
-        finger.position = touch.locationInNode(self)
-    }
-    
-    override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
-        finger.runAction(SKAction.removeFromParent())
-    }
+
 }

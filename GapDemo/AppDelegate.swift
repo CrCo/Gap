@@ -17,4 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
+    
+    func applicationWillResignActive(application: UIApplication) {
+        let vc = window!.rootViewController as ViewController
+        vc.meshConnectionManager.disconnect()
+    }
 }

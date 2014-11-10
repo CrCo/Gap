@@ -10,7 +10,7 @@ import UIKit
 import MultipeerConnectivity
 import SpriteKit
 
-class ViewController: UIViewController, MeshConnectionManagerDelegate, BallSceneDelegate, MotionManagerDelegate, UIGestureRecognizerDelegate {
+class ViewController: UIViewController, MeshConnectionManagerDelegate, BallSceneDelegate, MotionManagerDelegate {
     
     var me: MCPeerID {
         get {
@@ -34,14 +34,6 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     var spatialOrderManager: SpatialOrderManager!
     var motionManager: MotionManager!
     var scene: BallScene!
-    var type: BallType {
-        get {
-            return BallType(rawValue: NSUserDefaults.standardUserDefaults().integerForKey("type") as Int)!
-        }
-        set {
-            NSUserDefaults.standardUserDefaults().setInteger(type.rawValue, forKey: "type")
-        }
-    }
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -77,9 +69,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         }
         
         if let t = BallType(rawValue: _type) {
-            type = t
-            
-            scene.changeBallType(t)
+            scene.type = t
         }
     }
     
@@ -88,17 +78,13 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         self.spatialOrderManager.reset()
         updateAndShareGlobalTopography(true)
     }
-    func didSwipe() {
-        NSLog("sdflkj")
-    }
+    
     //MARK: View delegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let gestureRecognizer = UISwipeGestureRecognizer(target: self, action: "didSwipe")
-        spriteView.addGestureRecognizer(gestureRecognizer)
         
-        scene = BallScene(type: .Green)
+        scene = BallScene()
         let size = self.view.frame.size
         scene.aspectRatio = CGFloat(size.width/size.height)
         scene.transferDelegate = self
@@ -110,10 +96,6 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         scene.aspectRatio = CGFloat(size.width/size.height)
     }
     
-    @IBAction func shouldSpew(sender: AnyObject) {
-        scene.addNode(scene.generateRandomBall())
-    }
-        
     //MARK: utilities
     
     func peerForSide(side: Side) -> MCPeerID? {
@@ -124,14 +106,14 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
             return spatialOrderManager.rightDevice
         }
     }
-    
+
     func considerWhetherToDisableMotion() {
-        if spatialOrderManager.order.count == meshConnectionManager.session.connectedPeers.count + 1 {
-            //This means all peers have a place in the world
-            motionManager.stopMotionUpdates()
-        } else {
-            motionManager.startMotionUpdates()
-        }
+//        if spatialOrderManager.order.count == meshConnectionManager.session.connectedPeers.count + 1 {
+//            //This means all peers have a place in the world
+//            motionManager.stopMotionUpdates()
+//        } else {
+//            motionManager.startMotionUpdates()
+//        }
     }
     
     func updateAndShareGlobalTopography(shouldBroadcast: Bool) {
@@ -233,8 +215,9 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     func peerDidDisconnect(peer: MCPeerID) {
         spatialOrderManager.removeSpot(peer)
-        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+        updateAndShareGlobalTopography(false)
 
+        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
             self.statusIndicator.text = "💔"
         }
     }

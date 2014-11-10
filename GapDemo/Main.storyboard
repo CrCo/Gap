@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="7co-FP-gvZ">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -29,8 +28,12 @@
                                             <action selector="resetTopography:" destination="7co-FP-gvZ" eventType="touchUpInside" id="WLy-fq-cOh"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ahd-rq-5ee">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ahd-rq-5ee">
                                         <rect key="frame" x="544" y="18" width="42" height="45"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="42" id="EDQ-ps-Bem"/>
+                                            <constraint firstAttribute="height" constant="45" id="MlD-Xp-iWL"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="38"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
@@ -66,9 +69,9 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="iia-CH-fce" secondAttribute="trailing" constant="14" id="5Fu-Su-yJe"/>
-                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="ahd-rq-5ee" secondAttribute="trailing" constant="16" id="I1R-qJ-6Kr"/>
                                     <constraint firstItem="hN4-WO-hNX" firstAttribute="top" secondItem="YzV-hA-eNG" secondAttribute="bottom" constant="4" id="T8L-ht-baU"/>
                                     <constraint firstItem="iia-CH-fce" firstAttribute="top" secondItem="hN4-WO-hNX" secondAttribute="bottom" constant="1" id="UH4-XV-eXh"/>
+                                    <constraint firstAttribute="trailing" secondItem="ahd-rq-5ee" secondAttribute="trailing" constant="14" id="dXz-mk-nYp"/>
                                     <constraint firstItem="ahd-rq-5ee" firstAttribute="top" secondItem="xrw-G9-KAN" secondAttribute="top" constant="18" id="eLU-53-GcC"/>
                                     <constraint firstAttribute="bottom" secondItem="iia-CH-fce" secondAttribute="bottom" constant="12" id="jLk-ZL-Dex"/>
                                     <constraint firstItem="hN4-WO-hNX" firstAttribute="centerX" secondItem="YzV-hA-eNG" secondAttribute="centerX" id="nxV-uA-7pJ"/>
@@ -78,10 +81,10 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="ieK-Cc-Rcj" firstAttribute="top" secondItem="xrw-G9-KAN" secondAttribute="bottom" id="Ljz-dP-rKl"/>
-                            <constraint firstItem="xrw-G9-KAN" firstAttribute="leading" secondItem="SLo-E8-TGm" secondAttribute="leadingMargin" constant="-16" id="XKN-0e-Ls9"/>
-                            <constraint firstItem="xrw-G9-KAN" firstAttribute="top" secondItem="SLo-E8-TGm" secondAttribute="topMargin" id="Zik-JJ-C1Q"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="xrw-G9-KAN" secondAttribute="trailing" constant="-16" id="jhq-Y5-eK0"/>
+                            <constraint firstItem="ieK-Cc-Rcj" firstAttribute="top" secondItem="xrw-G9-KAN" secondAttribute="bottom" id="1m3-dJ-qSv"/>
+                            <constraint firstItem="xrw-G9-KAN" firstAttribute="leading" secondItem="SLo-E8-TGm" secondAttribute="leading" id="XKN-0e-Ls9"/>
+                            <constraint firstItem="xrw-G9-KAN" firstAttribute="top" secondItem="SLo-E8-TGm" secondAttribute="top" id="Zik-JJ-C1Q"/>
+                            <constraint firstAttribute="trailing" secondItem="xrw-G9-KAN" secondAttribute="trailing" id="jhq-Y5-eK0"/>
                         </constraints>
                     </view>
                     <connections>
