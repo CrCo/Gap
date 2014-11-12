@@ -9,7 +9,8 @@
 import CoreMotion
 
 protocol MotionManagerDelegate: NSObjectProtocol {
-    func motionManager(manager: MotionManager, didDetectContact: ContactEvent)
+    func motionManagerDidPickUp()
+    func motionManagerDidPutDown()
 }
 
 class MotionManager: NSObject {
@@ -17,13 +18,13 @@ class MotionManager: NSObject {
     let motionManager = CMMotionManager()
     var motionHandlingQueue: NSOperationQueue
     weak var delegate: MotionManagerDelegate!
+    var stable: Bool = false
     
     init(queue: NSOperationQueue) {
         self.motionHandlingQueue = queue
         super.init()
         
-        // 1/100 of second is pretty much the best we can do for most devices
-        motionManager.accelerometerUpdateInterval = 0.01
+        motionManager.accelerometerUpdateInterval = 0.2
     }
     
     func startMotionUpdates() {
@@ -33,92 +34,36 @@ class MotionManager: NSObject {
     
     func stopMotionUpdates() {
         NSLog("💥👂 STOPPED")
-
         motionManager.stopAccelerometerUpdates()
     }
     
+    func startTimer() {
+        NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: "startMotionUpdates", userInfo: nil, repeats: false)
+    }
+    
     func accelerometerUpdateHandler() -> (data: CMAccelerometerData!, err: NSError!) -> Void {
-        let idleThreshold = 0.025
-        let boundarySize = 50
+        let idleThreshold = 0.1
         
         var log = [Double]()
         
         var samplingCountdown: Int = 0
-        var lastNonThreshold: Double = 0
-        var lastNonThresholdTimestamp: NSTimeInterval = 0
-
+        
         return { (data: CMAccelerometerData!, err: NSError!) -> Void in
             
-            if abs(data.acceleration.x) > idleThreshold {
-                //Some event is happening
-                if log.count == 0 {
-                    //Add context
-                    log.append(lastNonThreshold)
-                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                        let diff = data.timestamp - lastNonThresholdTimestamp
-                        NSLog("💥👀")
-                    })
-                }
-                
-                log.append(data.acceleration.x)
-                samplingCountdown = boundarySize
-            } else {
-                //Below threshold
-                if samplingCountdown > 0 {
-                    //If we haven't already
-                    log.append(data.acceleration.x)
-                    samplingCountdown--
-                } else if log.count > 0 {
-                    //Counted down and we've captured results
-                    
-                    self.motionManager.stopAccelerometerUpdates()
-                    var arrayCopy: Slice<Double>
-                    
-                    if log.count >= boundarySize {
-                        arrayCopy = log[0..<log.count - boundarySize]
-                    } else {
-                        arrayCopy = log[0..<log.count]
-                    }
-                    
-                    self.performAnalysis(arrayCopy)
-                    self.motionManager.startAccelerometerUpdatesToQueue(self.motionHandlingQueue, withHandler: self.accelerometerUpdateHandler())
+            let _stable = abs(data.acceleration.x) < idleThreshold && abs(data.acceleration.y) < idleThreshold && data.acceleration.z < -0.75
+                        
+            if self.stable != _stable {
+                self.stable = _stable
+                self.stopMotionUpdates()
+                if self.stable {
+                    self.delegate.motionManagerDidPutDown()
                 } else {
-                    lastNonThreshold = data.acceleration.x
-                    lastNonThresholdTimestamp = data.timestamp
+                    self.delegate.motionManagerDidPickUp()
                 }
+                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                    self.startTimer()
+                })
             }
         }
-    }
-
-    
-    func performAnalysis(log: Slice<Double>) {
-
-        let eventThreshold = 0.3
-        let powerThreshold = 1.0
-        
-        var sum: Double = 0
-        for i in 0..<log.count {
-            let val = log[i]
-            if abs(val) < eventThreshold {
-                sum += val
-            } else {
-                var event: ContactEvent
-                if abs(sum) > powerThreshold {
-                    if sum > 0 {
-                        NSLog("💥👈")
-                        event = ContactEvent(initiationWithContactDirection: .Left)
-                    } else {
-                        NSLog("💥👉")
-                        event = ContactEvent(initiationWithContactDirection: .Right)
-                    }
-                } else {
-                    NSLog("💥✋")
-                    event = ContactEvent()
-                }
-                self.delegate.motionManager(self, didDetectContact: event)
-                return
-            }
-        }
-        NSLog("💥❌")
     }
 }

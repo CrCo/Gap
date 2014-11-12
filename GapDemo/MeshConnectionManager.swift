@@ -30,6 +30,8 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         }
     }
     
+    var side: Side
+    
     weak var delegate:  MeshConnectionManagerDelegate!
     
     var browser: MCNearbyServiceBrowser
@@ -38,7 +40,9 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     let serviceType = "dft-gapdemo"
     var hubPeer: MCPeerID?
     
-    init(peer: MCPeerID) {
+    init(peer: MCPeerID, side: Side) {
+        
+        self.side = side
         session = MCSession(peer: peer)
         browser = MCNearbyServiceBrowser(peer: peer, serviceType: serviceType);
         advertiser = MCNearbyServiceAdvertiser(peer: peer, discoveryInfo: nil, serviceType: serviceType)

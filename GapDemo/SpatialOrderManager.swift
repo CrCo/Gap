@@ -9,76 +9,98 @@
 import MultipeerConnectivity
 import CoreMotion
 
-class SpatialOrderManager: NSObject {
+
+protocol OrderStorage {
+    func left() -> MCPeerID?
+    func right() -> MCPeerID?
+}
+
+class SpatialOrderManager: NSObject, OrderStorage {
     
     var me: MCPeerID
     var count: Int = 0
-    var order: [MCPeerID] = []
     
-    var leftDevice: MCPeerID? {
+    var leftDevice: MCPeerID?
+    var rightDevice: MCPeerID?
+    
+    var order: [MCPeerID] {
         get {
-            if let i = find(order, me) {
-                if i > 0 {
-                    return order[i - 1]
-                }
-            }
-            return nil
+            let _a: [MCPeerID?] = [leftDevice, me, rightDevice]
+            
+            return _a.filter { $0 != nil } .map { $0! }
         }
-    }
-    
-    var rightDevice: MCPeerID? {
-        get {
-            if let i = find(order, me) {
-                if i < order.count - 1 {
-                    return order[i + 1]
-                }
-            }
-            return nil
+        set {
+            leftDevice = newValue[0]
+            rightDevice = newValue[1]
         }
-    }
-    
-    func addSpot(count: Int) {
-        self.count = count
     }
     
     func removeSpot(peer: MCPeerID) {
-        self.count -= 1
-        if let index = find(order, peer) {
-            order.removeAtIndex(index)
+        if leftDevice == peer {
+            leftDevice = nil
+        }
+        
+        if rightDevice == peer {
+            rightDevice = nil
         }
     }
     
     func reset() {
-        self.order.removeAll(keepCapacity: true)
+        self.leftDevice = nil
+        self.rightDevice = nil
+    }
+    
+    func left() -> MCPeerID? {
+        return leftDevice
     }
 
-    func addInference(inference: RelativeTopologyAssertionRepresentation) {
-        let left = inference.leftHandCandidate, right = inference.rightHandCandidate
-        
-        var indices = (left: find(order, left), right: find(order, right))
-        
-        if indices.left != nil && indices.right != nil {
-            if indices.left > indices.right {
-                order.removeAtIndex(indices.left!)
-                order.removeAtIndex(indices.right!)
-            } else {
-                order.removeAtIndex(indices.right!)
-                order.removeAtIndex(indices.left!)
-            }
-            indices = (left: nil, right: nil)
-        }
-        
-        if let ri = indices.right {
-            order.insert(left, atIndex: ri)
-        } else if let li = indices.left {
-            order.insert(right, atIndex: li + 1)
-        } else {
-            order.append(left)
-            order.append(right)
+    func right() -> MCPeerID? {
+        return rightDevice
+    }
+
+    func addInference(inference: RelativeTopologyAssertionRepresentation, forPeer peer: MCPeerID) {
+        switch inference.side {
+        case .Left: leftDevice = peer
+        case .Right: rightDevice = peer
         }
     }
     
+    override var description: String {
+        get {
+            return  "|".join(order.map { $0.displayName })
+        }
+    }
+    
+    
     init(peerID: MCPeerID) {        
         me = peerID
+    }
+}
+
+class SpatialOrderContainer: NSObject, OrderStorage {
+    
+    var order: [MCPeerID] = [MCPeerID]()
+    var me: MCPeerID
+    
+    init(me: MCPeerID) {
+        self.me = me
+    }
+    
+    func left() -> MCPeerID? {
+        if let index = find(order, me) {
+            if index > 0 {
+                return order[index - 1]
+            }
+        }
+        return nil
+    }
+    
+    func right() -> MCPeerID? {
+        if let index = find(order, me) {
+            if index < order.count - 1 {
+                return order[index + 1]
+            }
+        }
+        return nil
     }
 }

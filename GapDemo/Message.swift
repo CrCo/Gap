@@ -33,23 +33,18 @@ class GlobalTopologyDefinitionRepresentation: NSCoder, NSCoding {
 }
 
 class RelativeTopologyAssertionRepresentation: NSObject, NSCoding {
-    let leftHandCandidate: MCPeerID
-    let rightHandCandidate: MCPeerID
+    let side: Side
     
-    init(leftHandCandidate: MCPeerID, rightHandCandidate: MCPeerID) {
-        self.leftHandCandidate = leftHandCandidate
-        self.rightHandCandidate = rightHandCandidate
-
+    init(side: Side) {
+        self.side = side
     }
     
     required init(coder aDecoder: NSCoder) {
-        self.leftHandCandidate = aDecoder.decodeObjectForKey("left") as MCPeerID
-        self.rightHandCandidate = aDecoder.decodeObjectForKey("right") as MCPeerID
+        self.side = Side(rawValue: aDecoder.decodeObjectForKey("side") as String)!
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(leftHandCandidate, forKey: "left")
-        aCoder.encodeObject(rightHandCandidate, forKey: "right")
+        aCoder.encodeObject(side.rawValue, forKey: "side")
     }
 }
 
@@ -83,50 +78,14 @@ class BallTransferRepresentation: NSObject, NSCoding {
     }
 }
 
-enum ContactType: String {
-    case Passive = "passive"
-    case Initiation = "initiation"
-}
-
-class ContactEvent: NSObject, NSCoding {
+class RelativePositionRequest: NSObject, NSCoding {
     
-    let contactType: ContactType
-    let contactSide: Side?
-    
-    init(initiationWithContactDirection contactDirection: Side) {
-        self.contactType = .Initiation
-        self.contactSide = contactDirection
-    }
-
     override init() {
-        self.contactType = .Passive
     }
-    
+
     required init(coder aDecoder: NSCoder) {
-        contactType = ContactType(rawValue: aDecoder.decodeObjectForKey("type") as String)!
-        
-        if let side =  aDecoder.decodeObjectForKey("side") as String? {
-            contactSide = Side(rawValue:side)!
-        }
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(contactType.rawValue, forKey: "type")
-        if let side = contactSide {
-            aCoder.encodeObject(side.rawValue, forKey: "side")
-        }
-    }
-    
-    override var description: String {
-        get {
-            if self.contactType == .Initiation {
-                switch self.contactSide! {
-                case .Left: return "💥👈"
-                case .Right:  return "💥👉"
-                }
-            } else {
-                return "💥✋"
-            }
-        }
     }
 }

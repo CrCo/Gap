@@ -48,6 +48,32 @@
 			<key>DefaultValue</key>
 			<integer>0</integer>
 		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Position</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>The side this device is on</string>
+			<key>Key</key>
+			<string>side</string>
+			<key>DefaultValue</key>
+			<string>left</string>
+			<key>Titles</key>
+			<array>
+				<string>Left</string>
+				<string>Right</string>
+			</array>
+			<key>Values</key>
+			<array>
+				<string>left</string>
+				<string>right</string>
+			</array>
+		</dict>
 	</array>
 	<key>StringsTable</key>
 	<string>Root</string>
