@@ -38,44 +38,11 @@
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YzV-hA-eNG">
-                                        <rect key="frame" x="556" y="493" width="30" height="30"/>
-                                        <state key="normal" title="0">
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="didChangeType:" destination="7co-FP-gvZ" eventType="touchUpInside" id="Bml-u5-F4g"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hN4-WO-hNX">
-                                        <rect key="frame" x="556" y="527" width="30" height="30"/>
-                                        <state key="normal" title="1">
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="didChangeType:" destination="7co-FP-gvZ" eventType="touchUpInside" id="tw8-My-ylR"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iia-CH-fce">
-                                        <rect key="frame" x="556" y="558" width="30" height="30"/>
-                                        <state key="normal" title="2">
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="didChangeType:" destination="7co-FP-gvZ" eventType="touchUpInside" id="jmf-6D-gLc"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="iia-CH-fce" secondAttribute="trailing" constant="14" id="5Fu-Su-yJe"/>
-                                    <constraint firstItem="hN4-WO-hNX" firstAttribute="top" secondItem="YzV-hA-eNG" secondAttribute="bottom" constant="4" id="T8L-ht-baU"/>
-                                    <constraint firstItem="iia-CH-fce" firstAttribute="top" secondItem="hN4-WO-hNX" secondAttribute="bottom" constant="1" id="UH4-XV-eXh"/>
                                     <constraint firstAttribute="trailing" secondItem="ahd-rq-5ee" secondAttribute="trailing" constant="14" id="dXz-mk-nYp"/>
                                     <constraint firstItem="ahd-rq-5ee" firstAttribute="top" secondItem="xrw-G9-KAN" secondAttribute="top" constant="18" id="eLU-53-GcC"/>
-                                    <constraint firstAttribute="bottom" secondItem="iia-CH-fce" secondAttribute="bottom" constant="12" id="jLk-ZL-Dex"/>
-                                    <constraint firstItem="hN4-WO-hNX" firstAttribute="centerX" secondItem="YzV-hA-eNG" secondAttribute="centerX" id="nxV-uA-7pJ"/>
-                                    <constraint firstItem="hN4-WO-hNX" firstAttribute="centerX" secondItem="iia-CH-fce" secondAttribute="centerX" id="xMb-Jf-jjD"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -90,9 +57,6 @@
                     <connections>
                         <outlet property="spriteView" destination="xrw-G9-KAN" id="RTy-5K-ioo"/>
                         <outlet property="statusIndicator" destination="ahd-rq-5ee" id="LcW-4x-uec"/>
-                        <outlet property="type0" destination="YzV-hA-eNG" id="7xK-SP-s5V"/>
-                        <outlet property="type1" destination="hN4-WO-hNX" id="sAK-kd-QB2"/>
-                        <outlet property="type2" destination="iia-CH-fce" id="huF-f4-atb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PSt-dk-UJz" userLabel="First Responder" sceneMemberID="firstResponder"/>

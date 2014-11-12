@@ -26,14 +26,31 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         }
     }
     
+    var operatingMode: OperationMode {
+        get {
+            switch NSUserDefaults.standardUserDefaults().boolForKey("role") {
+            case true: return .Listener
+            case false:
+                fallthrough
+            default: return .Broadcaster
+            }
+        }
+    }
+    
+    var ballType: BallType {
+        get {
+            return BallType(rawValue: NSUserDefaults.standardUserDefaults().integerForKey("type") as Int)!
+        }
+    }
+    
     var motionHandlingQueue = NSOperationQueue()
-    
     var lastEvent: ContactEvent?
-    
     var meshConnectionManager: MeshConnectionManager!
     var spatialOrderManager: SpatialOrderManager!
     var motionManager: MotionManager!
     var scene: BallScene!
+    @IBOutlet weak var spriteView: SKView!
+    @IBOutlet weak var statusIndicator: UILabel!
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -42,41 +59,14 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         
         meshConnectionManager = MeshConnectionManager(peer: me)
         meshConnectionManager.delegate = self
+        meshConnectionManager.mode = operatingMode
 
         spatialOrderManager = SpatialOrderManager(peerID: me)
         
         motionManager = MotionManager(queue: motionHandlingQueue)
         motionManager.delegate = self
-    }
-    
-    var alertController: UIAlertController!
-    
-    @IBOutlet weak var spriteView: SKView!
-    
-    @IBOutlet weak var type0: UIButton!
-    @IBOutlet weak var type1: UIButton!
-    @IBOutlet weak var type2: UIButton!
-    
-    
-    @IBAction func didChangeType(sender: UIButton) {
-        var _type: Int
         
-        switch sender {
-        case type0: _type = 0
-        case type1: _type = 1
-        case type2: _type = 2
-        default: _type = -1
-        }
-        
-        if let t = BallType(rawValue: _type) {
-            scene.type = t
-        }
-    }
-    
-    @IBOutlet weak var statusIndicator: UILabel!
-    @IBAction func resetTopography(sender: AnyObject) {
-        self.spatialOrderManager.reset()
-        updateAndShareGlobalTopography(true)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "defaultsDidChange:", name: NSUserDefaultsDidChangeNotification, object: nil)
     }
     
     //MARK: View delegate
@@ -84,7 +74,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        scene = BallScene()
+        scene = BallScene(type: ballType)
         let size = self.view.frame.size
         scene.aspectRatio = CGFloat(size.width/size.height)
         scene.transferDelegate = self
@@ -96,7 +86,17 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         scene.aspectRatio = CGFloat(size.width/size.height)
     }
     
+    @IBAction func resetTopography(sender: AnyObject) {
+        self.spatialOrderManager.reset()
+        updateAndShareGlobalTopography(true)
+    }
+    
     //MARK: utilities
+    
+    func defaultsDidChange(notification: NSNotification) {
+        meshConnectionManager.mode = operatingMode
+        scene.type = ballType
+    }
     
     func peerForSide(side: Side) -> MCPeerID? {
         switch side {

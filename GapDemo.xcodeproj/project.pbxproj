@@ -9,6 +9,14 @@
 /* Begin PBXBuildFile section */
 		371058BD19FD5434004BC50A /* MeshConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371058BC19FD5434004BC50A /* MeshConnectionManager.swift */; };
 		371F630319FC151C00B56D02 /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 371F630219FC151C00B56D02 /* SpriteKit.framework */; };
+		3741894D1A1291A800A0E021 /* UserSprite.png in Resources */ = {isa = PBXBuildFile; fileRef = 3741894C1A1291A800A0E021 /* UserSprite.png */; };
+		374189521A1297AD00A0E021 /* EdgeMagic.sks in Resources */ = {isa = PBXBuildFile; fileRef = 374189501A1297AD00A0E021 /* EdgeMagic.sks */; };
+		374189531A1297AD00A0E021 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = 374189511A1297AD00A0E021 /* spark.png */; };
+		374189571A12A08200A0E021 /* VerticalBoundaryNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374189561A12A08200A0E021 /* VerticalBoundaryNode.swift */; };
+		374189591A12A18600A0E021 /* HorizontalBoundaryNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374189581A12A18600A0E021 /* HorizontalBoundaryNode.swift */; };
+		3741895B1A12A33000A0E021 /* BallNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3741895A1A12A33000A0E021 /* BallNode.swift */; };
+		3741895D1A12DC3900A0E021 /* Message.png in Resources */ = {isa = PBXBuildFile; fileRef = 3741895C1A12DC3900A0E021 /* Message.png */; };
+		3741895F1A12DD9A00A0E021 /* Dollar.png in Resources */ = {isa = PBXBuildFile; fileRef = 3741895E1A12DD9A00A0E021 /* Dollar.png */; };
 		375511B41A0A895D00D9B1E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 375511B31A0A895D00D9B1E4 /* Main.storyboard */; };
 		375A1A3219FDDBA200262055 /* BallScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375A1A3119FDDBA200262055 /* BallScene.swift */; };
 		3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3779B88A19F9421800DC3CE5 /* AppDelegate.swift */; };
@@ -37,6 +45,14 @@
 /* Begin PBXFileReference section */
 		371058BC19FD5434004BC50A /* MeshConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeshConnectionManager.swift; sourceTree = "<group>"; };
 		371F630219FC151C00B56D02 /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
+		3741894C1A1291A800A0E021 /* UserSprite.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UserSprite.png; sourceTree = "<group>"; };
+		374189501A1297AD00A0E021 /* EdgeMagic.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; name = EdgeMagic.sks; path = ../EdgeMagic.sks; sourceTree = "<group>"; };
+		374189511A1297AD00A0E021 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = spark.png; path = ../spark.png; sourceTree = "<group>"; };
+		374189561A12A08200A0E021 /* VerticalBoundaryNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerticalBoundaryNode.swift; sourceTree = "<group>"; };
+		374189581A12A18600A0E021 /* HorizontalBoundaryNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HorizontalBoundaryNode.swift; sourceTree = "<group>"; };
+		3741895A1A12A33000A0E021 /* BallNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallNode.swift; sourceTree = "<group>"; };
+		3741895C1A12DC3900A0E021 /* Message.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Message.png; sourceTree = "<group>"; };
+		3741895E1A12DD9A00A0E021 /* Dollar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Dollar.png; sourceTree = "<group>"; };
 		375511B31A0A895D00D9B1E4 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		375A1A3119FDDBA200262055 /* BallScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallScene.swift; sourceTree = "<group>"; };
 		3779B88519F9421800DC3CE5 /* GapDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GapDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,6 +93,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		374189551A129F2300A0E021 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				3741895E1A12DD9A00A0E021 /* Dollar.png */,
+				3741895C1A12DC3900A0E021 /* Message.png */,
+				374189501A1297AD00A0E021 /* EdgeMagic.sks */,
+				374189511A1297AD00A0E021 /* spark.png */,
+				3741894C1A1291A800A0E021 /* UserSprite.png */,
+			);
+			name = Images;
+			sourceTree = "<group>";
+		};
 		3779B87C19F9421800DC3CE5 = {
 			isa = PBXGroup;
 			children = (
@@ -108,8 +136,12 @@
 				377F0A041A09E42800966844 /* MotionManager.swift */,
 				3779B88A19F9421800DC3CE5 /* AppDelegate.swift */,
 				375A1A3119FDDBA200262055 /* BallScene.swift */,
+				374189561A12A08200A0E021 /* VerticalBoundaryNode.swift */,
+				374189581A12A18600A0E021 /* HorizontalBoundaryNode.swift */,
+				3741895A1A12A33000A0E021 /* BallNode.swift */,
 				37E2E0B91A073E7100FB9F99 /* Message.swift */,
 				3779B89119F9421900DC3CE5 /* Images.xcassets */,
+				374189551A129F2300A0E021 /* Images */,
 				3779B89319F9421900DC3CE5 /* LaunchScreen.xib */,
 				3779B88819F9421800DC3CE5 /* Supporting Files */,
 			);
@@ -223,9 +255,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3741895F1A12DD9A00A0E021 /* Dollar.png in Resources */,
 				37813B4E19FA905900DD5CDE /* Settings.bundle in Resources */,
+				3741894D1A1291A800A0E021 /* UserSprite.png in Resources */,
 				3779B89519F9421900DC3CE5 /* LaunchScreen.xib in Resources */,
+				3741895D1A12DC3900A0E021 /* Message.png in Resources */,
+				374189531A1297AD00A0E021 /* spark.png in Resources */,
 				3779B89219F9421900DC3CE5 /* Images.xcassets in Resources */,
+				374189521A1297AD00A0E021 /* EdgeMagic.sks in Resources */,
 				375511B41A0A895D00D9B1E4 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -245,6 +282,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3779B88B19F9421800DC3CE5 /* AppDelegate.swift in Sources */,
+				374189571A12A08200A0E021 /* VerticalBoundaryNode.swift in Sources */,
+				3741895B1A12A33000A0E021 /* BallNode.swift in Sources */,
+				374189591A12A18600A0E021 /* HorizontalBoundaryNode.swift in Sources */,
 				377F0A051A09E42800966844 /* MotionManager.swift in Sources */,
 				37E2E0BA1A073E7100FB9F99 /* Message.swift in Sources */,
 				37E2E0B81A06F41200FB9F99 /* SpatialOrderManager.swift in Sources */,

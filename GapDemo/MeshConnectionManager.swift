@@ -22,12 +22,10 @@ enum OperationMode {
 
 class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate, MCSessionDelegate  {
     
-    var mode: OperationMode {
-        get {
-            if NSUserDefaults.standardUserDefaults().boolForKey("role") {
-                return .Listener
-            } else {
-                return .Broadcaster
+    var mode: OperationMode? {
+        didSet {
+            if let m = mode {
+                shouldResetOperatingMode(m)
             }
         }
     }
@@ -51,20 +49,11 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         advertiser.delegate = self
         session.delegate = self
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "defaultsDidChange:", name: NSUserDefaultsDidChangeNotification, object: nil)
-        
-        shouldResetOperatingMode()
     }
     
     //MARK: utility
     
-    func defaultsDidChange(notification: NSNotification) {
-        if notification.object! is Bool {
-            shouldResetOperatingMode()
-        }
-    }
-    
-    func shouldResetOperatingMode() {
+    func shouldResetOperatingMode(mode: OperationMode) {
         switch mode {
         case .Listener:
             browser.stopBrowsingForPeers()
@@ -141,7 +130,9 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         case .NotConnected:
             NSLog("💔 \(peerID.displayName)")
             
-            shouldResetOperatingMode()
+            if let m = mode {
+                shouldResetOperatingMode(m)
+            }
             
             delegate.peerDidDisconnect(peerID)
         case .Connecting:

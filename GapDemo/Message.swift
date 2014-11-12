@@ -54,9 +54,9 @@ class RelativeTopologyAssertionRepresentation: NSObject, NSCoding {
 }
 
 enum BallType: Int {
-    case Red = 0
-    case Blue = 1
-    case Green = 2
+    case Finance = 0
+    case Communication = 1
+    case User = 2
 }
 
 class BallTransferRepresentation: NSObject, NSCoding {
