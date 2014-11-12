@@ -7,24 +7,13 @@
 //
 
 import UIKit
-import MultipeerConnectivity
-
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    let SERVICE_TYPE = "dft-gapdemo"
-    let PeerID = MCPeerID(displayName: UIDevice.currentDevice().name)
-    
     var window: UIWindow?
-    var serviceBrowser: MCNearbyServiceBrowser?
-    var serviceAdvertiser: MCNearbyServiceAdvertiser?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didChangeDefaults", name: NSUserDefaultsDidChangeNotification, object: nil)
-        
-        didChangeDefaults()
         
         return true
     }

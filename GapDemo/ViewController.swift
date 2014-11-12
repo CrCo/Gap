@@ -8,6 +8,7 @@
 
 import UIKit
 import MultipeerConnectivity
+import SpriteKit
 
 let _cellIdentifier = "default"
 

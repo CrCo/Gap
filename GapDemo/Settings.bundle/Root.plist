@@ -6,34 +6,52 @@
 	<array>
 		<dict>
 			<key>Title</key>
-			<string>Position</string>
+			<string>Role</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 		</dict>
 		<dict>
 			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Device controls connections</string>
+			<key>Key</key>
+			<string>role</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Type</string>
+		</dict>
+		<dict>
+			<key>Type</key>
 			<string>PSMultiValueSpecifier</string>
 			<key>Title</key>
-			<string>Position of Device</string>
-			<key>Key</key>
-			<string>position</string>
-			<key>DefaultValue</key>
-			<string>left</string>
-			<key>Values</key>
-			<array>
-				<string>left</string>
-				<string>middle</string>
-				<string>right</string>
-			</array>
+			<string>Ball Type</string>
 			<key>Titles</key>
 			<array>
-				<string>Left</string>
-				<string>Middle</string>
-				<string>Right</string>
+				<string>Finance</string>
+				<string>Communication</string>
+				<string>User</string>
 			</array>
+			<key>Values</key>
+			<array>
+				<real>0</real>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+			<key>Key</key>
+			<string>type</string>
+			<key>DefaultValue</key>
+			<integer>0</integer>
 		</dict>
 	</array>
 	<key>StringsTable</key>
 	<string>Root</string>
+	<key>Title</key>
+	<string>Gap Demo Settings</string>
 </dict>
 </plist>
