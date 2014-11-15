@@ -86,6 +86,10 @@ class SpatialOrderContainer: NSObject, OrderStorage {
         self.me = me
     }
     
+    func clear() {
+        order.removeAll(keepCapacity: true)
+    }
+    
     func left() -> MCPeerID? {
         if let index = find(order, me) {
             if index > 0 {

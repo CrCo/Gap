@@ -166,7 +166,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
             self.statusIndicator.text = "💏"
         }
         
-        if operatingMode == .Listener {
+        if operatingMode == .Listener && motionManager.stable {
             var err: NSError?
             
             meshConnectionManager.sendMessage(RelativePositionRequest(), toPeers: meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
@@ -180,6 +180,9 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     func peerDidDisconnect(peer: MCPeerID) {
         if spatialOrderManager is SpatialOrderManager {
             (spatialOrderManager as SpatialOrderManager).removeSpot(peer)
+            updateAndShareGlobalTopography()
+        } else if peer == meshConnectionManager.hubPeer {
+            (spatialOrderManager as SpatialOrderContainer).clear()
             updateAndShareGlobalTopography()
         }
 
