@@ -52,11 +52,11 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         }
     }
     
-    var motionHandlingQueue = NSOperationQueue()
     var meshConnectionManager: MeshConnectionManager!
     var spatialOrderManager: OrderStorage!
     var motionManager: MotionManager!
     var scene: BallScene!
+    
     @IBOutlet weak var spriteView: SKView!
     @IBOutlet weak var statusIndicator: UILabel!
     
@@ -71,16 +71,17 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         case .Listener:
             spatialOrderManager = SpatialOrderManager(peerID: me)
 
-            motionManager = MotionManager(queue: motionHandlingQueue)
+            motionManager = MotionManager()
             motionManager.delegate = self
             motionManager.startMotionUpdates()
-        case .Broadcaster: spatialOrderManager = SpatialOrderContainer(me: me)
+        case .Broadcaster:
+            spatialOrderManager = SpatialOrderContainer(me: me)
         }
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "defaultsDidChange:", name: NSUserDefaultsDidChangeNotification, object: nil)
     }
     
-    //MARK: View delegate
+    //MARK: View delegates
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -97,13 +98,15 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         scene.aspectRatio = CGFloat(size.width/size.height)
     }
     
-    //MARK: utilities
+    //MARK: User settings did change handler
     
     func defaultsDidChange(notification: NSNotification) {
         meshConnectionManager.mode = operatingMode
         meshConnectionManager.side = side
         scene.type = ballType
     }
+    
+    //MARK: utility
     
     func updateAndShareGlobalTopography() {
         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
@@ -132,11 +135,9 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     func peer(peer: MCPeerID, sentMessage message: AnyObject) {
         switch message {
         case is BallTransferRepresentation:
-            NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
-                let ball = message as BallTransferRepresentation
-                NSLog("🎾 from \(ball.position)")
-                self.scene.addNode(ball)
-            }
+            let ball = message as BallTransferRepresentation
+            NSLog("🎾 from \(ball.position)")
+            self.scene.addNode(ball)
         case is RelativeTopologyAssertionRepresentation:
             //Only the hub gets these messages
             (spatialOrderManager as SpatialOrderManager).addInference(message as RelativeTopologyAssertionRepresentation, forPeer: peer)
@@ -181,6 +182,8 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         if spatialOrderManager is SpatialOrderManager {
             (spatialOrderManager as SpatialOrderManager).removeSpot(peer)
             updateAndShareGlobalTopography()
+            //When a client disconnects, the discovery doesn't happen automatically
+            //meshConnectionManager.reconnect()
         } else if peer == meshConnectionManager.hubPeer {
             (spatialOrderManager as SpatialOrderContainer).clear()
             updateAndShareGlobalTopography()
@@ -200,7 +203,6 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     //MARK: Ball scene delegates
     
     func scene(scene: BallScene, ball: BallTransferRepresentation, didMoveOffscreen side: Side) {
-        //TODO: Determine logic of how to know which peer should transfer to
         var neighbor: MCPeerID?
         switch side {
         case .Left:
@@ -223,8 +225,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         }
     }
     
-    //MARK: Motion manager delegate (only for listener)
-    
+    //MARK: Motion manager delegate (only for hub)
     func motionManagerDidPickUp() {
         (self.spatialOrderManager as SpatialOrderManager).reset()
         updateAndShareGlobalTopography()

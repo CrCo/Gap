@@ -16,12 +16,11 @@ protocol MotionManagerDelegate: NSObjectProtocol {
 class MotionManager: NSObject {
     
     let motionManager = CMMotionManager()
-    var motionHandlingQueue: NSOperationQueue
+    var motionHandlingQueue: NSOperationQueue = NSOperationQueue()
     weak var delegate: MotionManagerDelegate!
     var stable: Bool = false
     
-    init(queue: NSOperationQueue) {
-        self.motionHandlingQueue = queue
+    override init() {
         super.init()
         
         motionManager.accelerometerUpdateInterval = 0.2

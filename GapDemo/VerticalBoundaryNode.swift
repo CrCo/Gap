@@ -12,7 +12,7 @@ class VerticalBoundaryNode: SKShapeNode {
     init (height: CGFloat) {
         super.init()
         
-        let topPoint = CGPoint(x: 0, y: -ballSize-1), bottomPoint = CGPoint(x: 0, y: height + ballSize + 1)
+        let topPoint = CGPoint(x: 0, y: -CGFloat(ballSize - 1)), bottomPoint = CGPoint(x: 0, y: CGFloat(ballSize + 1) + height)
         
         let _path = CGPathCreateMutable()
 

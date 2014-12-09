@@ -8,8 +8,8 @@
 
 import SpriteKit
 
-let ballSize : CGFloat = 30.0
-let height: CGFloat = 400
+let ballSize = 30
+let initialVelocityMagnitude = 100.0
 
 enum Side: String {
     case Left = "left"
@@ -33,8 +33,10 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     }
     var aspectRatio: CGFloat? {
         didSet {
+            let sceneHeight = 400.0
+
             if let a = aspectRatio {
-                self.size = CGSize(width: height * a, height: height)
+                self.size = CGSize(width: CGFloat(sceneHeight) * a, height: CGFloat(sceneHeight))
             }
         }
     }
@@ -46,7 +48,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
             } else {
                 enumerateChildNodesWithName("ball") { (node, stop) -> Void in
                     node.removeActionForKey("move")
-                    node.physicsBody!.velocity = CGVector(dx: Int(arc4random_uniform(400)) - 200, dy: Int(arc4random_uniform(400)) - 200)
+                    node.physicsBody!.velocity = self.randomVelocity()
                 }
             }
         }
@@ -54,7 +56,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     
     init(type: BallType) {
         self.type = type
-        super.init(size: CGSize(width: height, height: height))
+        super.init(size: CGSize(width: 0, height: 0))
         self.backgroundColor = SKColor.whiteColor()
     }
 
@@ -69,11 +71,22 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
             
             let colorIndex: Int = find([BallType.Communication, BallType.User, BallType.Finance], (node as BallNode).type)!
             let width = Int(self.size.width)
-            let point = CGPoint(x: CGFloat(width / 2 + (colorIndex - 1) * 30 * 2), y: CGFloat(30 + 30 * 2 * graphHeight[colorIndex]))
+            let point = CGPoint(x: CGFloat(width / 2 + (colorIndex - 1) * ballSize * 2), y: CGFloat(ballSize + ballSize * 2 * graphHeight[colorIndex]))
             
             node.runAction(SKAction.moveTo(point, duration: 0.4), withKey: "move")
             graphHeight[colorIndex]++
         }
+    }
+    
+    func randomVelocity() -> CGVector {
+        let angle = Double(arc4random()) / Double(UInt32.max) * M_PI * 2
+        return CGVector(dx: Int(initialVelocityMagnitude * sin(angle)), dy: Int(initialVelocityMagnitude * cos(angle)))
+    }
+    
+    func randomPoint() -> CGPoint {
+        let x = Int(arc4random_uniform(UInt32(self.frame.width - CGFloat(2 * ballSize))))
+        let y = Int(arc4random_uniform(UInt32(self.frame.height - CGFloat(2 * ballSize))))
+        return CGPoint(x: x + ballSize, y: y + ballSize)
     }
     
     override func didChangeSize(oldSize: CGSize) {
@@ -114,19 +127,17 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     }
     
     override func didMoveToView(view: SKView) {
-        let panGS = UIPanGestureRecognizer(target:self, action: "didPan:")
+        let panGS = UIPanGestureRecognizer(target:self, action: Selector("didPan:"))
         view.addGestureRecognizer(panGS)
         
-        let longGS = UILongPressGestureRecognizer(target: self, action: "didHold:")
+        let longGS = UILongPressGestureRecognizer(target: self, action: Selector("didHold:"))
         view.addGestureRecognizer(longGS)
         
         for i in 1...2 {
             let node = BallNode(type: type)
-            
-            node.position = CGPoint(x: Int(arc4random_uniform(UInt32(self.frame.width))), y: Int(arc4random_uniform(UInt32(self.frame.height))))
+            node.position = randomPoint()
             addChild(node)
-            
-            node.physicsBody!.velocity = CGVector(dx: Int(arc4random_uniform(400)) - 200, dy: Int(arc4random_uniform(400)))
+            node.physicsBody!.velocity = randomVelocity()
         }
     }
     
@@ -136,19 +147,19 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
             
             let node = node as BallNode
             
-            if node.position.x > self.frame.width + ballSize {
+            if node.position.x > self.frame.width + CGFloat(ballSize) {
                 if  self.openings.right {
                     //send on its way
-                    self.transferDelegate.scene(self, ball: node.ballRepresentation(), didMoveOffscreen: .Right)
+                    self.transferDelegate.scene(self, ball: node.ballRepresentation(.Right), didMoveOffscreen: .Right)
                     node.removeFromParent()
                 } else {
                     //this guy is trapped on the wrong side of the wall
                     self.resetBall(node, attemptedSide: .Right)
                 }
-            } else if node.position.x < -ballSize {
+            } else if node.position.x < -CGFloat(ballSize) {
                 if  self.openings.left {
                     //send on its way
-                    self.transferDelegate.scene(self, ball: node.ballRepresentation(), didMoveOffscreen: .Left)
+                    self.transferDelegate.scene(self, ball: node.ballRepresentation(.Left), didMoveOffscreen: .Left)
                     node.removeFromParent()
                 } else {
                     //this guy is trapped on the wrong side of the wall
@@ -162,31 +173,32 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
     func addNode(ball: BallTransferRepresentation) {
         var positionX: CGFloat
         
-        if ball.velocity.dx < 0 {
-            //Moving left
-            positionX = self.size.width + 30
-        } else {
-            //Moving right
-            positionX = -30
+        switch ball.direction {
+        case .Left:
+            positionX = self.size.width + CGFloat(ballSize)
+        case .Right:
+            positionX = -CGFloat(ballSize)
         }
         
         let node = BallNode(type: ball.type)
         node.position = CGPoint(x:positionX, y:ball.position.y)
-        self.addChild(node)
         
-        if sortFieldActive {
-            moveNodesToGraph()
-        } else {
-            node.physicsBody!.velocity = ball.velocity
+        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+            self.addChild(node)
+            if self.sortFieldActive {
+                self.moveNodesToGraph()
+            } else {
+                node.physicsBody!.velocity = ball.velocity
+            }
         }
     }
     
     func resetBall(node: SKNode, attemptedSide side: Side) {
         switch side {
         case .Left:
-            node.position.x = ballSize
+            node.position.x = CGFloat(ballSize)
         case .Right:
-            node.position.x = self.frame.width - ballSize
+            node.position.x = self.frame.width - CGFloat(ballSize)
         }
         
         node.physicsBody?.velocity.dx = -node.physicsBody!.velocity.dx

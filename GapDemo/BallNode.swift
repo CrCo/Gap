@@ -29,7 +29,7 @@ class BallNode: SKSpriteNode {
         
         self.name = "ball"
         
-        let body = SKPhysicsBody(circleOfRadius: ballSize)
+        let body = SKPhysicsBody(circleOfRadius: CGFloat(ballSize))
         body.affectedByGravity = false
         body.friction = 0
         body.linearDamping = 0.0
@@ -38,8 +38,8 @@ class BallNode: SKSpriteNode {
         physicsBody = body
     }
     
-    func ballRepresentation() -> BallTransferRepresentation {
-        return BallTransferRepresentation(type:type, position: position, velocity: physicsBody!.velocity)
+    func ballRepresentation(direction: Side) -> BallTransferRepresentation {
+        return BallTransferRepresentation(type:type, position: position, velocity: physicsBody!.velocity, direction: direction)
     }
     
     required init?(coder aDecoder: NSCoder) {

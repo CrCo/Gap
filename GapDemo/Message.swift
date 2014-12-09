@@ -58,10 +58,12 @@ class BallTransferRepresentation: NSObject, NSCoding {
     let type: BallType
     let position: CGPoint
     let velocity: CGVector
+    let direction: Side
     
-    init(type: BallType, position: CGPoint, velocity: CGVector)  {
+    init(type: BallType, position: CGPoint, velocity: CGVector, direction: Side)  {
         self.type = type
         self.position = position
+        self.direction = direction
         self.velocity = velocity
     }
     
@@ -69,12 +71,14 @@ class BallTransferRepresentation: NSObject, NSCoding {
         type = BallType(rawValue: aDecoder.decodeObjectForKey("type") as Int)!
         position = aDecoder.decodeCGPointForKey("position")
         velocity = aDecoder.decodeCGVectorForKey("velocity")
+        direction = Side(rawValue: aDecoder.decodeObjectForKey("direction") as String)!
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(type.rawValue, forKey: "type")
         aCoder.encodeCGPoint(position, forKey: "position")
         aCoder.encodeCGVector(velocity, forKey: "velocity")
+        aCoder.encodeObject(direction.rawValue, forKey: "direction")
     }
 }
 

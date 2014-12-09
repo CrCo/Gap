@@ -31,28 +31,23 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     }
     
     var side: Side
-    
     weak var delegate:  MeshConnectionManagerDelegate!
     
     var browser: MCNearbyServiceBrowser
     var advertiser: MCNearbyServiceAdvertiser
     var session: MCSession
-    let serviceType = "dft-gapdemo"
     var hubPeer: MCPeerID?
     
     init(peer: MCPeerID, side: Side) {
-        
+        let serviceType = "dft-gapdemo"
         self.side = side
         session = MCSession(peer: peer)
         browser = MCNearbyServiceBrowser(peer: peer, serviceType: serviceType);
         advertiser = MCNearbyServiceAdvertiser(peer: peer, discoveryInfo: nil, serviceType: serviceType)
-        
         super.init()
-        
         browser.delegate = self
         advertiser.delegate = self
         session.delegate = self
-        
     }
     
     //MARK: utility
@@ -76,13 +71,22 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         session.disconnect()
     }
     
+    func reconnect() {
+        if let h = hubPeer {
+            if find(session.connectedPeers as [MCPeerID], h) == nil {
+                NSLog("🎵")
+                advertiser.startAdvertisingPeer()
+            }
+        }
+    }
+    
     //MARK: Public members
     
     func sendMessage(message: AnyObject, toPeers peers: [MCPeerID], error: NSErrorPointer) {
         var err: NSError?
         let data = NSKeyedArchiver.archivedDataWithRootObject(message)
 
-        session.sendData(data, toPeers: peers, withMode: MCSessionSendDataMode.Reliable, error: &err)
+        session.sendData(data, toPeers: peers.filter { find(self.session.connectedPeers as [MCPeerID], $0) != nil }, withMode: MCSessionSendDataMode.Reliable, error: &err)
         if err != nil {
             error.memory = err
         }
@@ -92,10 +96,13 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
         
-        NSLog("👉 Invite \(peerID.displayName)")
-        
-        browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
-        delegate.peerIsConnecting(peerID)
+        if find(session.connectedPeers as [MCPeerID], peerID) != nil {
+            NSLog("❌👉 Already connected to \(peerID.displayName)")
+        } else {
+            NSLog("👉 Invite \(peerID.displayName)")
+            browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
+            delegate.peerIsConnecting(peerID)
+        }
     }
 
     func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
@@ -128,14 +135,33 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         case .Connected:
             NSLog("💏 \(peerID.displayName)")
             
+            switch mode! {
+            case .Broadcaster:
+                if peerID == hubPeer {
+                    NSLog("❌🎵")
+                    advertiser.stopAdvertisingPeer()
+                }
+            case .Listener:
+                if session.connectedPeers.count == 2 {
+                    NSLog("❌👂")
+                    browser.stopBrowsingForPeers()
+                }
+            }
+            
             delegate.peerDidConnect(peerID)
             
             //TODO: if a certain number of peers are connected, the caller should disable ranging
         case .NotConnected:
             NSLog("💔 \(peerID.displayName)")
             
-            if let m = mode {
-                shouldResetOperatingMode(m)
+            switch mode! {
+            case .Broadcaster:
+                if UIApplication.sharedApplication().applicationState == .Active {
+                    reconnect()
+                }
+            case .Listener:
+                NSLog("👂")
+                browser.startBrowsingForPeers()
             }
             
             delegate.peerDidDisconnect(peerID)

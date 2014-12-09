@@ -13,8 +13,8 @@ class HorizontalBoundaryNode: SKShapeNode {
     init(width: CGFloat) {
         super.init()
         
-        let leftPoint = CGPoint(x: -ballSize-1, y: 0)
-        let rightPoint = CGPoint(x: width + ballSize + 1, y: 0)
+        let leftPoint = CGPoint(x: CGFloat(-ballSize - 1), y: 0)
+        let rightPoint = CGPoint(x: width + CGFloat(ballSize + 1), y: 0)
 
         let _path = CGPathCreateMutable()
         

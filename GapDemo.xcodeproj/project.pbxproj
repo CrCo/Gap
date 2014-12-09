@@ -17,7 +17,6 @@
 		3741895B1A12A33000A0E021 /* BallNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3741895A1A12A33000A0E021 /* BallNode.swift */; };
 		3741895D1A12DC3900A0E021 /* Message.png in Resources */ = {isa = PBXBuildFile; fileRef = 3741895C1A12DC3900A0E021 /* Message.png */; };
 		3741895F1A12DD9A00A0E021 /* Dollar.png in Resources */ = {isa = PBXBuildFile; fileRef = 3741895E1A12DD9A00A0E021 /* Dollar.png */; };
-		374189611A12FF4400A0E021 /* BluetoothRangingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374189601A12FF4400A0E021 /* BluetoothRangingManager.swift */; };
 		374189631A13010100A0E021 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 374189621A13010100A0E021 /* CoreLocation.framework */; };
 		375511B41A0A895D00D9B1E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 375511B31A0A895D00D9B1E4 /* Main.storyboard */; };
 		375A1A3219FDDBA200262055 /* BallScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375A1A3119FDDBA200262055 /* BallScene.swift */; };
@@ -55,7 +54,6 @@
 		3741895A1A12A33000A0E021 /* BallNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallNode.swift; sourceTree = "<group>"; };
 		3741895C1A12DC3900A0E021 /* Message.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Message.png; sourceTree = "<group>"; };
 		3741895E1A12DD9A00A0E021 /* Dollar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Dollar.png; sourceTree = "<group>"; };
-		374189601A12FF4400A0E021 /* BluetoothRangingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothRangingManager.swift; sourceTree = "<group>"; };
 		374189621A13010100A0E021 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		375511B31A0A895D00D9B1E4 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		375A1A3119FDDBA200262055 /* BallScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallScene.swift; sourceTree = "<group>"; };
@@ -138,7 +136,6 @@
 				375511B31A0A895D00D9B1E4 /* Main.storyboard */,
 				37D2DDAB19FDA37F00152F25 /* ViewController.swift */,
 				371058BC19FD5434004BC50A /* MeshConnectionManager.swift */,
-				374189601A12FF4400A0E021 /* BluetoothRangingManager.swift */,
 				37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */,
 				377F0A041A09E42800966844 /* MotionManager.swift */,
 				3779B88A19F9421800DC3CE5 /* AppDelegate.swift */,
@@ -292,7 +289,6 @@
 				374189571A12A08200A0E021 /* VerticalBoundaryNode.swift in Sources */,
 				3741895B1A12A33000A0E021 /* BallNode.swift in Sources */,
 				374189591A12A18600A0E021 /* HorizontalBoundaryNode.swift in Sources */,
-				374189611A12FF4400A0E021 /* BluetoothRangingManager.swift in Sources */,
 				377F0A051A09E42800966844 /* MotionManager.swift in Sources */,
 				37E2E0BA1A073E7100FB9F99 /* Message.swift in Sources */,
 				37E2E0B81A06F41200FB9F99 /* SpatialOrderManager.swift in Sources */,
