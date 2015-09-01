@@ -69,7 +69,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         enumerateChildNodesWithName("ball") { (node, stop) -> Void in
             node.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
             
-            let colorIndex: Int = find([BallType.Communication, BallType.User, BallType.Finance], (node as BallNode).type)!
+            let colorIndex: Int = find([BallType.Communication, BallType.User, BallType.Finance], (node as! BallNode).type)!
             let width = Int(self.size.width)
             let point = CGPoint(x: CGFloat(width / 2 + (colorIndex - 1) * ballSize * 2), y: CGFloat(ballSize + ballSize * 2 * graphHeight[colorIndex]))
             
@@ -145,7 +145,7 @@ class BallScene : SKScene, SKPhysicsContactDelegate {
         
         self.enumerateChildNodesWithName("ball") { (node, shouldStop) -> Void in
             
-            let node = node as BallNode
+            let node = node as! BallNode
             
             if node.position.x > self.frame.width + CGFloat(ballSize) {
                 if  self.openings.right {

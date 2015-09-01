@@ -19,12 +19,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationWillResignActive(application: UIApplication) {
-        let vc = window!.rootViewController as ViewController
+        let vc = window!.rootViewController as! ViewController
         vc.meshConnectionManager.disconnect()
     }
     
     func applicationDidBecomeActive(application: UIApplication) {
-        let vc = window!.rootViewController as ViewController
+        let vc = window!.rootViewController as! ViewController
         vc.meshConnectionManager.reconnect()
     }
 }

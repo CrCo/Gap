@@ -73,7 +73,7 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     func reconnect() {
         if let h = hubPeer {
-            if find(session.connectedPeers as [MCPeerID], h) == nil {
+            if find(session.connectedPeers as! [MCPeerID], h) == nil {
                 NSLog("🎵")
                 advertiser.startAdvertisingPeer()
             }
@@ -86,7 +86,7 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         var err: NSError?
         let data = NSKeyedArchiver.archivedDataWithRootObject(message)
 
-        session.sendData(data, toPeers: peers.filter { find(self.session.connectedPeers as [MCPeerID], $0) != nil }, withMode: MCSessionSendDataMode.Reliable, error: &err)
+        session.sendData(data, toPeers: peers.filter { find(self.session.connectedPeers as! [MCPeerID], $0) != nil }, withMode: MCSessionSendDataMode.Reliable, error: &err)
         if err != nil {
             error.memory = err
         }
@@ -96,7 +96,7 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
         
-        if find(session.connectedPeers as [MCPeerID], peerID) != nil {
+        if find(session.connectedPeers as! [MCPeerID], peerID) != nil {
             NSLog("❌👉 Already connected to \(peerID.displayName)")
         } else {
             NSLog("👉 Invite \(peerID.displayName)")

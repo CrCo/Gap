@@ -16,7 +16,7 @@ class GlobalTopologyDefinitionRepresentation: NSCoder, NSCoding {
     }
     
     required init(coder aDecoder: NSCoder) {
-        let tempArray = aDecoder.decodeObjectForKey("topology") as [MCPeerID]
+        let tempArray = aDecoder.decodeObjectForKey("topology") as! [MCPeerID]
         
         var newArray = [MCPeerID]()
         
@@ -40,7 +40,7 @@ class RelativeTopologyAssertionRepresentation: NSObject, NSCoding {
     }
     
     required init(coder aDecoder: NSCoder) {
-        self.side = Side(rawValue: aDecoder.decodeObjectForKey("side") as String)!
+        self.side = Side(rawValue: aDecoder.decodeObjectForKey("side") as! String)!
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -68,10 +68,10 @@ class BallTransferRepresentation: NSObject, NSCoding {
     }
     
     required init(coder aDecoder: NSCoder) {
-        type = BallType(rawValue: aDecoder.decodeObjectForKey("type") as Int)!
+        type = BallType(rawValue: aDecoder.decodeObjectForKey("type") as! Int)!
         position = aDecoder.decodeCGPointForKey("position")
         velocity = aDecoder.decodeCGVectorForKey("velocity")
-        direction = Side(rawValue: aDecoder.decodeObjectForKey("direction") as String)!
+        direction = Side(rawValue: aDecoder.decodeObjectForKey("direction") as! String)!
     }
     
     func encodeWithCoder(aCoder: NSCoder) {

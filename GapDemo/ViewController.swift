@@ -16,8 +16,8 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         get {
             let def = NSUserDefaults.standardUserDefaults()
                         
-            if let data = def.objectForKey("me") as NSData? {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as MCPeerID
+            if let data = def.objectForKey("me") as! NSData? {
+                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! MCPeerID
             } else {
                 let newPeer = MCPeerID(displayName: UIDevice.currentDevice().name)
                 def.setObject(NSKeyedArchiver.archivedDataWithRootObject(newPeer), forKey: "me")
@@ -118,11 +118,11 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         
         if spatialOrderManager is SpatialOrderManager {
             //We are the hub, we need to forward our knowledge
-            let som = spatialOrderManager as SpatialOrderManager
+            let som = spatialOrderManager as! SpatialOrderManager
 
             let topoRep = GlobalTopologyDefinitionRepresentation(topology: som.order)
             var err: NSError?
-            self.meshConnectionManager.sendMessage(topoRep, toPeers: meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
+            self.meshConnectionManager.sendMessage(topoRep, toPeers: meshConnectionManager.session.connectedPeers as! [MCPeerID], error: &err)
             if let e = err {
                 NSLog("❌🎵🌏: \(som)")
             } else {
@@ -135,15 +135,15 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     func peer(peer: MCPeerID, sentMessage message: AnyObject) {
         switch message {
         case is BallTransferRepresentation:
-            let ball = message as BallTransferRepresentation
+            let ball = message as! BallTransferRepresentation
             NSLog("🎾 from \(ball.position)")
             self.scene.addNode(ball)
         case is RelativeTopologyAssertionRepresentation:
             //Only the hub gets these messages
-            (spatialOrderManager as SpatialOrderManager).addInference(message as RelativeTopologyAssertionRepresentation, forPeer: peer)
+            (spatialOrderManager as! SpatialOrderManager).addInference(message as! RelativeTopologyAssertionRepresentation, forPeer: peer)
             updateAndShareGlobalTopography()
         case is GlobalTopologyDefinitionRepresentation:
-            (spatialOrderManager as SpatialOrderContainer).order = (message as GlobalTopologyDefinitionRepresentation).topology
+            (spatialOrderManager as! SpatialOrderContainer).order = (message as! GlobalTopologyDefinitionRepresentation).topology
             updateAndShareGlobalTopography()
             
         case is RelativePositionRequest:
@@ -170,7 +170,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         if operatingMode == .Listener && motionManager.stable {
             var err: NSError?
             
-            meshConnectionManager.sendMessage(RelativePositionRequest(), toPeers: meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
+            meshConnectionManager.sendMessage(RelativePositionRequest(), toPeers: meshConnectionManager.session.connectedPeers as! [MCPeerID], error: &err)
             
             if let e = err {
                 NSLog("Could not send request")
@@ -180,12 +180,12 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     func peerDidDisconnect(peer: MCPeerID) {
         if spatialOrderManager is SpatialOrderManager {
-            (spatialOrderManager as SpatialOrderManager).removeSpot(peer)
+            (spatialOrderManager as! SpatialOrderManager).removeSpot(peer)
             updateAndShareGlobalTopography()
             //When a client disconnects, the discovery doesn't happen automatically
             //meshConnectionManager.reconnect()
         } else if peer == meshConnectionManager.hubPeer {
-            (spatialOrderManager as SpatialOrderContainer).clear()
+            (spatialOrderManager as! SpatialOrderContainer).clear()
             updateAndShareGlobalTopography()
         }
 
@@ -227,14 +227,14 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     //MARK: Motion manager delegate (only for hub)
     func motionManagerDidPickUp() {
-        (self.spatialOrderManager as SpatialOrderManager).reset()
+        (self.spatialOrderManager as! SpatialOrderManager).reset()
         updateAndShareGlobalTopography()
     }
 
     func motionManagerDidPutDown() {
         var err: NSError?
 
-        meshConnectionManager.sendMessage(RelativePositionRequest(), toPeers: meshConnectionManager.session.connectedPeers as [MCPeerID], error: &err)
+        meshConnectionManager.sendMessage(RelativePositionRequest(), toPeers: meshConnectionManager.session.connectedPeers as! [MCPeerID], error: &err)
 
         if let e = err {
             NSLog("Could not send request")
