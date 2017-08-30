@@ -14,13 +14,13 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     var me: MCPeerID {
         get {
-            let def = NSUserDefaults.standardUserDefaults()
+            let def = UserDefaults.standard
                         
-            if let data = def.objectForKey("me") as! NSData? {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! MCPeerID
+            if let data = def.object(forKey: "me") as! Data? {
+                return NSKeyedUnarchiver.unarchiveObject(with: data) as! MCPeerID
             } else {
-                let newPeer = MCPeerID(displayName: UIDevice.currentDevice().name)
-                def.setObject(NSKeyedArchiver.archivedDataWithRootObject(newPeer), forKey: "me")
+                let newPeer = MCPeerID(displayName: UIDevice.current.name)
+                def.set(NSKeyedArchiver.archivedData(withRootObject: newPeer), forKey: "me")
                 return newPeer
             }
         }
@@ -28,24 +28,24 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     
     var operatingMode: OperationMode {
         get {
-            switch NSUserDefaults.standardUserDefaults().boolForKey("role") {
-            case true: return .Listener
+            switch UserDefaults.standard.bool(forKey: "role") {
+            case true: return .listener
             case false:
                 fallthrough
-            default: return .Broadcaster
+            default: return .broadcaster
             }
         }
     }
     
     var ballType: BallType {
         get {
-            return BallType(rawValue: NSUserDefaults.standardUserDefaults().integerForKey("type") as Int)!
+            return BallType(rawValue: UserDefaults.standard.integer(forKey: "type") as Int)!
         }
     }
 
     var side: Side {
         get {
-            if let s = NSUserDefaults.standardUserDefaults().stringForKey("side") {
+            if let s = UserDefaults.standard.string(forKey: "side") {
                 return Side(rawValue: s)!
             }
             return .Left
@@ -61,24 +61,24 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     @IBOutlet weak var statusIndicator: UILabel!
     
     required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        super.init(coder: aDecoder)!
         
         meshConnectionManager = MeshConnectionManager(peer: me, side: side)
         meshConnectionManager.delegate = self
         meshConnectionManager.mode = operatingMode
         
         switch operatingMode {
-        case .Listener:
+        case .listener:
             spatialOrderManager = SpatialOrderManager(peerID: me)
 
             motionManager = MotionManager()
             motionManager.delegate = self
             motionManager.startMotionUpdates()
-        case .Broadcaster:
+        case .broadcaster:
             spatialOrderManager = SpatialOrderContainer(me: me)
         }
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "defaultsDidChange:", name: NSUserDefaultsDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.defaultsDidChange(_:)), name: UserDefaults.didChangeNotification, object: nil)
     }
     
     //MARK: View delegates
@@ -93,14 +93,14 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         spriteView.presentScene(scene)
     }
     
-    override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
+    override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
         let size = self.view.frame.size
         scene.aspectRatio = CGFloat(size.width/size.height)
     }
     
     //MARK: User settings did change handler
     
-    func defaultsDidChange(notification: NSNotification) {
+    func defaultsDidChange(_ notification: Notification) {
         meshConnectionManager.mode = operatingMode
         meshConnectionManager.side = side
         scene.type = ballType
@@ -109,7 +109,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     //MARK: utility
     
     func updateAndShareGlobalTopography() {
-        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+        OperationQueue.main.addOperation({ () -> Void in
             self.scene.openings = (
                 left: self.spatialOrderManager.left() != nil,
                 right: self.spatialOrderManager.right() != nil
@@ -132,7 +132,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
     }
 
     //MARK: Peer delegates
-    func peer(peer: MCPeerID, sentMessage message: AnyObject) {
+    func peer(_ peer: MCPeerID, sentMessage message: AnyObject) {
         switch message {
         case is BallTransferRepresentation:
             let ball = message as! BallTransferRepresentation
@@ -162,12 +162,12 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         }
     }
     
-    func peerDidConnect(peer: MCPeerID) {
-        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+    func peerDidConnect(_ peer: MCPeerID) {
+        OperationQueue.main.addOperation { () -> Void in
             self.statusIndicator.text = "💏"
         }
         
-        if operatingMode == .Listener && motionManager.stable {
+        if operatingMode == .listener && motionManager.stable {
             var err: NSError?
             
             meshConnectionManager.sendMessage(RelativePositionRequest(), toPeers: meshConnectionManager.session.connectedPeers as! [MCPeerID], error: &err)
@@ -178,7 +178,7 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
         }
     }
     
-    func peerDidDisconnect(peer: MCPeerID) {
+    func peerDidDisconnect(_ peer: MCPeerID) {
         if spatialOrderManager is SpatialOrderManager {
             (spatialOrderManager as! SpatialOrderManager).removeSpot(peer)
             updateAndShareGlobalTopography()
@@ -189,20 +189,20 @@ class ViewController: UIViewController, MeshConnectionManagerDelegate, BallScene
             updateAndShareGlobalTopography()
         }
 
-        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+        OperationQueue.main.addOperation { () -> Void in
             self.statusIndicator.text = "💔"
         }
     }
     
-    func peerIsConnecting(peer: MCPeerID) {
-        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+    func peerIsConnecting(_ peer: MCPeerID) {
+        OperationQueue.main.addOperation { () -> Void in
             self.statusIndicator.text = "💗"
         }
     }
     
     //MARK: Ball scene delegates
     
-    func scene(scene: BallScene, ball: BallTransferRepresentation, didMoveOffscreen side: Side) {
+    func scene(_ scene: BallScene, ball: BallTransferRepresentation, didMoveOffscreen side: Side) {
         var neighbor: MCPeerID?
         switch side {
         case .Left:

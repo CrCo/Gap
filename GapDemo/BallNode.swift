@@ -18,14 +18,14 @@ class BallNode: SKSpriteNode {
         
         var name: String
         switch type {
-        case .Finance: name = "Dollar"
-        case .Communication: name = "Message"
-        case .User: name = "UserSprite"
+        case .finance: name = "Dollar"
+        case .communication: name = "Message"
+        case .user: name = "UserSprite"
         }
         
-        super.init(texture: SKTexture(imageNamed: name), color: SKColor.clearColor(), size: CGSize(width: ballSize*2, height: ballSize*2))
+        super.init(texture: SKTexture(imageNamed: name), color: SKColor.clear, size: CGSize(width: ballSize*2, height: ballSize*2))
         
-        texture?.textureByGeneratingNormalMap()
+        texture?.generatingNormalMap()
         
         self.name = "ball"
         
@@ -38,7 +38,7 @@ class BallNode: SKSpriteNode {
         physicsBody = body
     }
     
-    func ballRepresentation(direction: Side) -> BallTransferRepresentation {
+    func ballRepresentation(_ direction: Side) -> BallTransferRepresentation {
         return BallTransferRepresentation(type:type, position: position, velocity: physicsBody!.velocity, direction: direction)
     }
     

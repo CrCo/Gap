@@ -16,15 +16,13 @@ class HorizontalBoundaryNode: SKShapeNode {
         let leftPoint = CGPoint(x: CGFloat(-ballSize - 1), y: 0)
         let rightPoint = CGPoint(x: width + CGFloat(ballSize + 1), y: 0)
 
-        let _path = CGPathCreateMutable()
+        let path = CGMutablePath()
         
-        CGPathMoveToPoint(_path, nil, leftPoint.x, leftPoint.y)
-        CGPathAddLineToPoint(_path, nil, rightPoint.x, rightPoint.y)
-        
-        path = _path
-        
-        physicsBody = SKPhysicsBody(edgeFromPoint: leftPoint, toPoint: rightPoint)
-        physicsBody!.dynamic = false
+        path.move(to: CGPoint(x: leftPoint.x, y: leftPoint.y))
+        path.addLine(to: CGPoint(x: rightPoint.x, y: rightPoint.y))
+
+        physicsBody = SKPhysicsBody(edgeFrom: leftPoint, to: rightPoint)
+        physicsBody!.isDynamic = false
     }
     
     required init?(coder aDecoder: NSCoder) {

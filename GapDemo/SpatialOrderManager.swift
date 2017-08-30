@@ -35,7 +35,7 @@ class SpatialOrderManager: NSObject, OrderStorage {
         }
     }
     
-    func removeSpot(peer: MCPeerID) {
+    func removeSpot(_ peer: MCPeerID) {
         if leftDevice == peer {
             leftDevice = nil
         }
@@ -58,7 +58,7 @@ class SpatialOrderManager: NSObject, OrderStorage {
         return rightDevice
     }
 
-    func addInference(inference: RelativeTopologyAssertionRepresentation, forPeer peer: MCPeerID) {
+    func addInference(_ inference: RelativeTopologyAssertionRepresentation, forPeer peer: MCPeerID) {
         switch inference.side {
         case .Left: leftDevice = peer
         case .Right: rightDevice = peer
@@ -67,7 +67,7 @@ class SpatialOrderManager: NSObject, OrderStorage {
     
     override var description: String {
         get {
-            return  "|".join(order.map { $0.displayName })
+            return  order.map { $0.displayName }.joined(separator: "|" )
         }
     }
     
@@ -87,7 +87,7 @@ class SpatialOrderContainer: NSObject, OrderStorage {
     }
     
     func clear() {
-        order.removeAll(keepCapacity: true)
+        order.removeAll(keepingCapacity: true)
     }
     
     func left() -> MCPeerID? {
