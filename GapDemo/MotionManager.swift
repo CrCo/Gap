@@ -16,7 +16,7 @@ protocol MotionManagerDelegate: NSObjectProtocol {
 class MotionManager: NSObject {
     
     let motionManager = CMMotionManager()
-    var motionHandlingQueue: NSOperationQueue = NSOperationQueue()
+    var motionHandlingQueue: OperationQueue = OperationQueue()
     weak var delegate: MotionManagerDelegate!
     var stable: Bool = false
     
@@ -28,7 +28,7 @@ class MotionManager: NSObject {
     
     func startMotionUpdates() {
         NSLog("💥👂 STARTED")
-        motionManager.startAccelerometerUpdatesToQueue(motionHandlingQueue, withHandler: accelerometerUpdateHandler())
+        motionManager.startAccelerometerUpdates(to: motionHandlingQueue, withHandler: accelerometerUpdateHandler() as! CMAccelerometerHandler)
     }
     
     func stopMotionUpdates() {
@@ -37,10 +37,10 @@ class MotionManager: NSObject {
     }
     
     func startTimer() {
-        NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: "startMotionUpdates", userInfo: nil, repeats: false)
+        Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(MotionManager.startMotionUpdates), userInfo: nil, repeats: false)
     }
     
-    func accelerometerUpdateHandler() -> (data: CMAccelerometerData!, err: NSError!) -> Void {
+    func accelerometerUpdateHandler() -> (_ data: CMAccelerometerData?, _ err: NSError?) -> Void {
         let idleThreshold = 0.1
         
         var log = [Double]()
@@ -59,7 +59,7 @@ class MotionManager: NSObject {
                 } else {
                     self.delegate.motionManagerDidPickUp()
                 }
-                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                OperationQueue.main.addOperation({ () -> Void in
                     self.startTimer()
                 })
             }

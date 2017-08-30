@@ -16,7 +16,7 @@ class GlobalTopologyDefinitionRepresentation: NSCoder, NSCoding {
     }
     
     required init(coder aDecoder: NSCoder) {
-        let tempArray = aDecoder.decodeObjectForKey("topology") as! [MCPeerID]
+        let tempArray = aDecoder.decodeObject(forKey: "topology") as! [MCPeerID]
         
         var newArray = [MCPeerID]()
         
@@ -27,8 +27,8 @@ class GlobalTopologyDefinitionRepresentation: NSCoder, NSCoding {
         self.topology = newArray
     }
     
-    func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(topology, forKey: "topology")
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(topology, forKey: "topology")
     }
 }
 
@@ -40,18 +40,18 @@ class RelativeTopologyAssertionRepresentation: NSObject, NSCoding {
     }
     
     required init(coder aDecoder: NSCoder) {
-        self.side = Side(rawValue: aDecoder.decodeObjectForKey("side") as! String)!
+        self.side = Side(rawValue: aDecoder.decodeObject(forKey: "side") as! String)!
     }
     
-    func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(side.rawValue, forKey: "side")
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(side.rawValue, forKey: "side")
     }
 }
 
 enum BallType: Int {
-    case Finance = 0
-    case Communication = 1
-    case User = 2
+    case finance = 0
+    case communication = 1
+    case user = 2
 }
 
 class BallTransferRepresentation: NSObject, NSCoding {
@@ -68,17 +68,17 @@ class BallTransferRepresentation: NSObject, NSCoding {
     }
     
     required init(coder aDecoder: NSCoder) {
-        type = BallType(rawValue: aDecoder.decodeObjectForKey("type") as! Int)!
-        position = aDecoder.decodeCGPointForKey("position")
-        velocity = aDecoder.decodeCGVectorForKey("velocity")
-        direction = Side(rawValue: aDecoder.decodeObjectForKey("direction") as! String)!
+        type = BallType(rawValue: aDecoder.decodeObject(forKey: "type") as! Int)!
+        position = aDecoder.decodeCGPoint(forKey: "position")
+        velocity = aDecoder.decodeCGVector(forKey: "velocity")
+        direction = Side(rawValue: aDecoder.decodeObject(forKey: "direction") as! String)!
     }
     
-    func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(type.rawValue, forKey: "type")
-        aCoder.encodeCGPoint(position, forKey: "position")
-        aCoder.encodeCGVector(velocity, forKey: "velocity")
-        aCoder.encodeObject(direction.rawValue, forKey: "direction")
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(type.rawValue, forKey: "type")
+        aCoder.encode(position, forKey: "position")
+        aCoder.encode(velocity, forKey: "velocity")
+        aCoder.encode(direction.rawValue, forKey: "direction")
     }
 }
 
@@ -90,6 +90,6 @@ class RelativePositionRequest: NSObject, NSCoding {
     required init(coder aDecoder: NSCoder) {
     }
     
-    func encodeWithCoder(aCoder: NSCoder) {
+    func encode(with aCoder: NSCoder) {
     }
 }

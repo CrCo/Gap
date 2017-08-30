@@ -9,18 +9,42 @@
 import MultipeerConnectivity
 
 protocol MeshConnectionManagerDelegate : NSObjectProtocol {
-    func peer(peer: MCPeerID, sentMessage: AnyObject)
-    func peerDidConnect(peer: MCPeerID)
-    func peerDidDisconnect(peer: MCPeerID)
-    func peerIsConnecting(peer: MCPeerID)
+    func peer(_ peer: MCPeerID, sentMessage: AnyObject)
+    func peerDidConnect(_ peer: MCPeerID)
+    func peerDidDisconnect(_ peer: MCPeerID)
+    func peerIsConnecting(_ peer: MCPeerID)
 }
 
 enum OperationMode {
-    case Broadcaster
-    case Listener
+    case broadcaster
+    case listener
+}
+
+
+extension NSObject{
+    func find(_ array:[BallType],_ obj:BallType)-> Int?{
+        for (index,obj1) in array.enumerated(){
+            if (obj1 == obj){
+                return index
+            }
+        }
+        return nil
+        
+    }
+    func find(_ array:[MCPeerID],_ obj:MCPeerID)-> Int?{
+        for (index,obj1) in array.enumerated(){
+            if (obj1 == obj){
+                return index
+            }
+        }
+        return nil
+        
+    }
 }
 
 class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate, MCSessionDelegate  {
+   
+
     
     var mode: OperationMode? {
         didSet {
@@ -52,14 +76,14 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     //MARK: utility
     
-    func shouldResetOperatingMode(mode: OperationMode) {
+    func shouldResetOperatingMode(_ mode: OperationMode) {
         switch mode {
-        case .Listener:
+        case .listener:
             browser.stopBrowsingForPeers()
             browser.startBrowsingForPeers()
             advertiser.stopAdvertisingPeer()
             NSLog("👂")
-        case .Broadcaster:
+        case .broadcaster:
             advertiser.stopAdvertisingPeer()
             advertiser.startAdvertisingPeer()
             browser.stopBrowsingForPeers()
@@ -73,7 +97,7 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     func reconnect() {
         if let h = hubPeer {
-            if find(session.connectedPeers as! [MCPeerID], h) == nil {
+            if find(session.connectedPeers , h) == nil {
                 NSLog("🎵")
                 advertiser.startAdvertisingPeer()
             }
@@ -82,44 +106,48 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     //MARK: Public members
     
-    func sendMessage(message: AnyObject, toPeers peers: [MCPeerID], error: NSErrorPointer) {
-        var err: NSError?
-        let data = NSKeyedArchiver.archivedDataWithRootObject(message)
+    func sendMessage(_ message: AnyObject, toPeers peers: [MCPeerID], error: NSErrorPointer) {
+      
+        let data = NSKeyedArchiver.archivedData(withRootObject: message)
 
-        session.sendData(data, toPeers: peers.filter { find(self.session.connectedPeers as! [MCPeerID], $0) != nil }, withMode: MCSessionSendDataMode.Reliable, error: &err)
-        if err != nil {
-            error.memory = err
+        do {
+            try session.send(data, toPeers: peers.filter { find(self.session.connectedPeers , $0) != nil }, with: .reliable)
+            
+        } catch let error {
+            print("  error:",error.localizedDescription)
         }
+        
+    
     }
     
     //MARK: Browser delegate
     
-    func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
+   public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?){
         
         if find(session.connectedPeers as! [MCPeerID], peerID) != nil {
             NSLog("❌👉 Already connected to \(peerID.displayName)")
         } else {
             NSLog("👉 Invite \(peerID.displayName)")
-            browser.invitePeer(peerID, toSession: session, withContext: nil, timeout: 0)
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 0)
             delegate.peerIsConnecting(peerID)
         }
     }
 
-    func browser(browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
+    func browser(_ browser: MCNearbyServiceBrowser!, didNotStartBrowsingForPeers error: NSError!) {
         NSLog("Error browsing for peers: \(error)")
     }
 
-    func browser(browser: MCNearbyServiceBrowser!, lostPeer peerID: MCPeerID!) {
+    func browser(_ browser: MCNearbyServiceBrowser!, lostPeer peerID: MCPeerID!) {
         NSLog("❓ \(peerID.displayName)")
     }
     
     //MARK: Advertiser delegate
 
-    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didNotStartAdvertisingPeer error: NSError!) {
+    func advertiser(_ advertiser: MCNearbyServiceAdvertiser!, didNotStartAdvertisingPeer error: NSError!) {
         NSLog("Error advertising for peers: \(error)")
     }
     
-    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
+    func advertiser(_ advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: Data!, invitationHandler: ((Bool, MCSession?) -> Void)!) {
         
         NSLog("👍 \(peerID.displayName)")
 
@@ -130,18 +158,18 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
     
     //MARK: Session Delegate
     
-    func session(session: MCSession!, peer peerID: MCPeerID!, didChangeState state: MCSessionState) {
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch (state) {
-        case .Connected:
+        case .connected:
             NSLog("💏 \(peerID.displayName)")
             
             switch mode! {
-            case .Broadcaster:
+            case .broadcaster:
                 if peerID == hubPeer {
                     NSLog("❌🎵")
                     advertiser.stopAdvertisingPeer()
                 }
-            case .Listener:
+            case .listener:
                 if session.connectedPeers.count == 2 {
                     NSLog("❌👂")
                     browser.stopBrowsingForPeers()
@@ -151,28 +179,28 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
             delegate.peerDidConnect(peerID)
             
             //TODO: if a certain number of peers are connected, the caller should disable ranging
-        case .NotConnected:
+        case .notConnected:
             NSLog("💔 \(peerID.displayName)")
             
             switch mode! {
-            case .Broadcaster:
-                if UIApplication.sharedApplication().applicationState == .Active {
+            case .broadcaster:
+                if UIApplication.shared.applicationState == .active {
                     reconnect()
                 }
-            case .Listener:
+            case .listener:
                 NSLog("👂")
                 browser.startBrowsingForPeers()
             }
             
             delegate.peerDidDisconnect(peerID)
-        case .Connecting:
+        case .connecting:
             NSLog("💗")
         }
     }
     
-    func session(session: MCSession!, didReceiveData data: NSData!, fromPeer peerID: MCPeerID!) {
+    func session(_ session: MCSession!, didReceive data: Data, fromPeer peerID: MCPeerID!) {
         
-        let obj: AnyObject? = NSKeyedUnarchiver.unarchiveObjectWithData(data)
+        let obj: AnyObject? = NSKeyedUnarchiver.unarchiveObject(with: data) as AnyObject
         
         if let o: AnyObject = obj {
             delegate.peer(peerID, sentMessage:o)
@@ -181,15 +209,15 @@ class MeshConnectionManager: NSObject, MCNearbyServiceBrowserDelegate, MCNearbyS
         }
     }
     
-    func session(session: MCSession!, didFinishReceivingResourceWithName resourceName: String!, fromPeer peerID: MCPeerID!, atURL localURL: NSURL!, withError error: NSError!) {
+    func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
         fatalError("Shouldn't receive resource")
     }
     
-    func session(session: MCSession!, didReceiveStream stream: NSInputStream!, withName streamName: String!, fromPeer peerID: MCPeerID!) {
+    func session(_ session: MCSession!, didReceive stream: InputStream, withName streamName: String!, fromPeer peerID: MCPeerID!) {
         fatalError("Shouldn't receive stream")
     }
     
-    func session(session: MCSession!, didStartReceivingResourceWithName resourceName: String!, fromPeer peerID: MCPeerID!, withProgress progress: NSProgress!) {
+    func session(_ session: MCSession!, didStartReceivingResourceWithName resourceName: String!, fromPeer peerID: MCPeerID!, with progress: Progress) {
         fatalError("Shouldn't receive resource")
     }
 }

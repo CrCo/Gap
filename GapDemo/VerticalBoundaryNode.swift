@@ -14,15 +14,11 @@ class VerticalBoundaryNode: SKShapeNode {
         
         let topPoint = CGPoint(x: 0, y: -CGFloat(ballSize - 1)), bottomPoint = CGPoint(x: 0, y: CGFloat(ballSize + 1) + height)
         
-        let _path = CGPathCreateMutable()
-
-        CGPathMoveToPoint(_path, nil, topPoint.x, topPoint.y)
-        CGPathAddLineToPoint(_path, nil, bottomPoint.x, bottomPoint.y)
-        
-        path = _path
-
-        physicsBody = SKPhysicsBody(edgeFromPoint: topPoint, toPoint: bottomPoint)
-        physicsBody!.dynamic = false
+        let path = CGMutablePath()
+        path.move(to: CGPoint(x: topPoint.x, y: topPoint.y))
+        path.addLine(to: CGPoint(x: bottomPoint.x, y: bottomPoint.y))
+        physicsBody = SKPhysicsBody(edgeFrom: topPoint, to: bottomPoint)
+        physicsBody!.isDynamic = false
     }
     
     required init?(coder aDecoder: NSCoder) {

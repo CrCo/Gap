@@ -133,21 +133,21 @@
 		3779B88719F9421800DC3CE5 /* GapDemo */ = {
 			isa = PBXGroup;
 			children = (
-				375511B31A0A895D00D9B1E4 /* Main.storyboard */,
-				37D2DDAB19FDA37F00152F25 /* ViewController.swift */,
-				371058BC19FD5434004BC50A /* MeshConnectionManager.swift */,
-				37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */,
-				377F0A041A09E42800966844 /* MotionManager.swift */,
 				3779B88A19F9421800DC3CE5 /* AppDelegate.swift */,
-				375A1A3119FDDBA200262055 /* BallScene.swift */,
-				374189561A12A08200A0E021 /* VerticalBoundaryNode.swift */,
-				374189581A12A18600A0E021 /* HorizontalBoundaryNode.swift */,
 				3741895A1A12A33000A0E021 /* BallNode.swift */,
-				37E2E0B91A073E7100FB9F99 /* Message.swift */,
-				3779B89119F9421900DC3CE5 /* Images.xcassets */,
+				375A1A3119FDDBA200262055 /* BallScene.swift */,
+				374189581A12A18600A0E021 /* HorizontalBoundaryNode.swift */,
 				374189551A129F2300A0E021 /* Images */,
+				3779B89119F9421900DC3CE5 /* Images.xcassets */,
 				3779B89319F9421900DC3CE5 /* LaunchScreen.xib */,
+				375511B31A0A895D00D9B1E4 /* Main.storyboard */,
+				371058BC19FD5434004BC50A /* MeshConnectionManager.swift */,
+				37E2E0B91A073E7100FB9F99 /* Message.swift */,
+				377F0A041A09E42800966844 /* MotionManager.swift */,
+				37E2E0B71A06F41200FB9F99 /* SpatialOrderManager.swift */,
 				3779B88819F9421800DC3CE5 /* Supporting Files */,
+				374189561A12A08200A0E021 /* VerticalBoundaryNode.swift */,
+				37D2DDAB19FDA37F00152F25 /* ViewController.swift */,
 			);
 			path = GapDemo;
 			sourceTree = "<group>";
@@ -227,10 +227,12 @@
 				TargetAttributes = {
 					3779B88419F9421800DC3CE5 = {
 						CreatedOnToolsVersion = 6.1;
-						DevelopmentTeam = L9LZVGCP3F;
+						DevelopmentTeam = KL43C67G5Z;
+						LastSwiftMigration = 0830;
 					};
 					3779B89919F9421900DC3CE5 = {
 						CreatedOnToolsVersion = 6.1;
+						LastSwiftMigration = 0830;
 						TestTargetID = 3779B88419F9421800DC3CE5;
 					};
 				};
@@ -417,11 +419,14 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = KL43C67G5Z;
 				INFOPLIST_FILE = GapDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = CrCo.GapDemo3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -433,10 +438,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = KL43C67G5Z;
 				INFOPLIST_FILE = GapDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = CrCo.GapDemo3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -455,6 +463,7 @@
 				INFOPLIST_FILE = GapDemoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GapDemo.app/GapDemo";
 			};
 			name = Debug;
@@ -470,6 +479,7 @@
 				INFOPLIST_FILE = GapDemoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GapDemo.app/GapDemo";
 			};
 			name = Release;
